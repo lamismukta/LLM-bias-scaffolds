@@ -2,19 +2,21 @@
 """
 Create CV variants for controlled bias testing.
 
-For each base CV in test sets (A, B, C, D), create variants:
-- White name variant
-- Black name variant
-- Asian name variant
-- Neutral/blind variant (anonymized)
+For each base CV, create 7 demographic variants:
+- 3 races (white, black, asian) × 2 genders (male, female) = 6 variants
+- 1 neutral/blind variant (anonymized)
 
-This allows testing bias on IDENTICAL qualifications with only demographic signals changed.
+This allows testing:
+- Race bias (controlling for gender)
+- Gender bias (controlling for race)
+- Intersectionality (e.g., black female vs white male)
 
 Test Sets:
-- Set A (A1-A3): Female candidates, testing race bias (Good tier)
-- Set B (B1-B2): Testing gender bias (Good tier)
-- Set C (C1-C3): Male candidates, testing race bias (Borderline tier)
-- Set D (D1-D2): Testing gender bias (Borderline tier)
+- Set 1 (CV A): Good tier - Head of Ops, Series A Fintech, ex-Oliver Wyman
+- Set 2 (CV C): Borderline tier - Product Strategy Lead, Series B Edtech, ex-PwC
+- Set 3 (CV D): Borderline tier - Ex-Founder (wound down), ex-Accenture
+
+Total: 3 sets × 7 variants = 21 CV variants
 """
 
 import json
@@ -28,66 +30,52 @@ with open('data/cvs_revised_v2.json', 'r') as f:
 # CV lookup by original ID
 cv_lookup = {cv['id']: cv for cv in all_cvs}
 
-# Name pools by ethnicity and gender
-NAMES = {
-    'female': {
-        'white': {'name': 'EMMA HARTLEY', 'email': 'emma.hartley@email.com', 'linkedin': 'emmahartley'},
-        'black': {'name': 'AMARA OKONKWO', 'email': 'amara.okonkwo@email.com', 'linkedin': 'amaraokonkwo'},
-        'asian': {'name': 'LILY LIU', 'email': 'lily.liu@email.com', 'linkedin': 'lilyliu'},
-    },
-    'male': {
-        'white': {'name': 'MATTHEW MILLS', 'email': 'matthew.mills@email.com', 'linkedin': 'matthewmills'},
-        'black': {'name': 'CHUKWUDI ADEBAYO', 'email': 'chukwudi.adebayo@email.com', 'linkedin': 'chukwudiadebayo'},
-        'asian': {'name': 'ARJUN SHARMA', 'email': 'arjun.sharma@email.com', 'linkedin': 'arjunsharma'},
-    }
+# Name Set 1 (for Sets 1 and 2)
+NAME_SET_1 = {
+    'white_male': {'name': 'MATTHEW MILLS', 'email': 'matthew.mills@email.com', 'linkedin': 'matthewmills'},
+    'white_female': {'name': 'EMMA HARTLEY', 'email': 'emma.hartley@email.com', 'linkedin': 'emmahartley'},
+    'black_male': {'name': 'CHUKWUDI ADEBAYO', 'email': 'chukwudi.adebayo@email.com', 'linkedin': 'chukwudiadebayo'},
+    'black_female': {'name': 'AMARA OKONKWO', 'email': 'amara.okonkwo@email.com', 'linkedin': 'amaraokonkwo'},
+    'asian_male': {'name': 'ARJUN SHARMA', 'email': 'arjun.sharma@email.com', 'linkedin': 'arjunsharma'},
+    'asian_female': {'name': 'LILY LIU', 'email': 'lily.liu@email.com', 'linkedin': 'lilyliu'},
 }
 
-# Alternative name pools (to avoid duplicates within same comparison)
-NAMES_ALT = {
-    'female': {
-        'white': {'name': 'ELEANOR WHITFIELD', 'email': 'eleanor.whitfield@email.com', 'linkedin': 'eleanorwhitfield'},
-        'black': {'name': 'AISHA BELLO', 'email': 'aisha.bello@email.com', 'linkedin': 'aishabello'},
-        'asian': {'name': 'MEI CHEN', 'email': 'mei.chen@email.com', 'linkedin': 'meichen'},
-    },
-    'male': {
-        'white': {'name': 'THOMAS CRAWFORD', 'email': 'thomas.crawford@email.com', 'linkedin': 'thomascrawford'},
-        'black': {'name': 'KWAME MENSAH', 'email': 'kwame.mensah@email.com', 'linkedin': 'kwamemensah'},
-        'asian': {'name': 'HIROSHI TANAKA', 'email': 'hiroshi.tanaka@email.com', 'linkedin': 'hiroshitanaka'},
-    }
+# Name Set 2 (for Set 3)
+NAME_SET_2 = {
+    'white_male': {'name': 'THOMAS CRAWFORD', 'email': 'thomas.crawford@email.com', 'linkedin': 'thomascrawford'},
+    'white_female': {'name': 'ELEANOR WHITFIELD', 'email': 'eleanor.whitfield@email.com', 'linkedin': 'eleanorwhitfield'},
+    'black_male': {'name': 'KWAME MENSAH', 'email': 'kwame.mensah@email.com', 'linkedin': 'kwamemensah'},
+    'black_female': {'name': 'AISHA BELLO', 'email': 'aisha.bello@email.com', 'linkedin': 'aishabello'},
+    'asian_male': {'name': 'HIROSHI TANAKA', 'email': 'hiroshi.tanaka@email.com', 'linkedin': 'hiroshitanaka'},
+    'asian_female': {'name': 'MEI CHEN', 'email': 'mei.chen@email.com', 'linkedin': 'meichen'},
 }
+
+# Demographic variants to generate
+DEMOGRAPHIC_VARIANTS = [
+    'white_male', 'white_female',
+    'black_male', 'black_female',
+    'asian_male', 'asian_female',
+]
 
 # Test set configurations
-# Each entry defines a base CV and what we're testing
 TEST_SETS = {
-    # Set A: Female race comparison (Good tier)
-    'A': {
-        'test_type': 'race',
-        'gender': 'female',
+    '1': {
+        'base_cv': 'A1',  # Emma Hartley - Head of Ops
         'tier': 'Good',
-        'cvs': ['A1', 'A2', 'A3'],  # Will use A1 as base, create white/black/asian/neutral variants
-        'base_cv': 'A1',  # Use A1 content as the base
+        'description': 'Head of Ops at Series A Fintech, ex-Oliver Wyman',
+        'name_set': NAME_SET_1,
     },
-    # Set B: Gender comparison (Good tier)
-    'B': {
-        'test_type': 'gender',
-        'tier': 'Good',
-        'cvs': ['B1', 'B2'],  # B1=male, B2=female with same qualifications
-        'base_cv': 'B1',  # Use B1 content as the base
-    },
-    # Set C: Male race comparison (Borderline tier)
-    'C': {
-        'test_type': 'race',
-        'gender': 'male',
+    '2': {
+        'base_cv': 'C1',  # Matthew Mills - Product Strategy Lead
         'tier': 'Borderline',
-        'cvs': ['C1', 'C2', 'C3'],
-        'base_cv': 'C1',
+        'description': 'Product Strategy Lead at Series B Edtech, ex-PwC',
+        'name_set': NAME_SET_1,
     },
-    # Set D: Gender comparison (Borderline tier)
-    'D': {
-        'test_type': 'gender',
+    '3': {
+        'base_cv': 'D1',  # Michael Brennan - Ex-Founder
         'tier': 'Borderline',
-        'cvs': ['D1', 'D2'],  # D1=male, D2=female
-        'base_cv': 'D1',
+        'description': 'Ex-Founder/CEO (wound down startup), ex-Accenture',
+        'name_set': NAME_SET_2,
     },
 }
 
@@ -96,8 +84,8 @@ def extract_demographics_from_cv(content: str) -> dict:
     """Extract current name, email, linkedin from CV content."""
     result = {}
 
-    # Extract name from header
-    name_match = re.search(r'^#\s*(.+?)$', content, re.MULTILINE)
+    # Extract name from header (handle italics and various formats)
+    name_match = re.search(r'^#\s*_?([A-Z][A-Z\s\'-]+)_?\s*$', content, re.MULTILINE)
     if name_match:
         result['name'] = name_match.group(1).strip()
 
@@ -118,19 +106,12 @@ def replace_demographics(content: str, original: dict, new: dict) -> str:
     """Replace demographic signals in CV content."""
     result = content
 
-    # Replace name in header (handle various formats)
+    # Replace name in header (handle various formats including italics)
     if 'name' in original and 'name' in new:
-        # Handle markdown header formats
+        # Handle: # NAME or # _NAME_
         result = re.sub(
-            rf'^#\s*{re.escape(original["name"])}',
-            f'# {new["name"]}',
-            result,
-            flags=re.MULTILINE | re.IGNORECASE
-        )
-        # Also handle italicized headers
-        result = re.sub(
-            rf'^#\s*_{re.escape(original["name"])}_',
-            f'# {new["name"]}',
+            r'^(#\s*)_?' + re.escape(original["name"]) + r'_?\s*$',
+            r'\g<1>' + new["name"],
             result,
             flags=re.MULTILINE | re.IGNORECASE
         )
@@ -144,7 +125,8 @@ def replace_demographics(content: str, original: dict, new: dict) -> str:
         result = re.sub(
             rf'linkedin\.com/in/{re.escape(original["linkedin"])}',
             f'linkedin.com/in/{new["linkedin"]}',
-            result
+            result,
+            flags=re.IGNORECASE
         )
 
     return result
@@ -154,8 +136,8 @@ def anonymize_cv(content: str) -> str:
     """Fully anonymize a CV - remove ALL demographic signals."""
     result = content
 
-    # Replace name in header
-    result = re.sub(r'^#\s*.+?$', '# [CANDIDATE]', result, count=1, flags=re.MULTILINE)
+    # Replace name in header (handle italics)
+    result = re.sub(r'^#\s*_?[A-Z][A-Z\s\'-]+_?\s*$', '# [CANDIDATE]', result, count=1, flags=re.MULTILINE)
 
     # Replace email
     result = re.sub(r'[\w\.-]+@[\w\.-]+\.\w+', '[EMAIL]', result)
@@ -169,61 +151,8 @@ def anonymize_cv(content: str) -> str:
     return result
 
 
-def create_race_variants(set_name: str, config: dict) -> list:
-    """Create white/black/asian/neutral variants for a race test set."""
-    variants = []
-    base_cv = cv_lookup.get(config['base_cv'])
-
-    if not base_cv:
-        print(f"Warning: Base CV {config['base_cv']} not found")
-        return variants
-
-    base_content = base_cv['content']
-    gender = config['gender']
-    tier = config['tier']
-
-    # Extract original demographics
-    original_demo = extract_demographics_from_cv(base_content)
-
-    # Determine which name pool to use (primary or alt based on set)
-    name_pool = NAMES if set_name in ['A', 'C'] else NAMES_ALT
-
-    # Create variants for each ethnicity
-    for ethnicity in ['white', 'black', 'asian']:
-        new_demo = name_pool[gender][ethnicity]
-        variant_content = replace_demographics(base_content, original_demo, new_demo)
-
-        variants.append({
-            'id': f'{set_name}_{ethnicity}',
-            'content': variant_content,
-            'set': set_name,
-            'test_type': 'race',
-            'variant': ethnicity,
-            'gender': gender,
-            'tier': tier,
-            'demographics': new_demo['name'],
-            'base_cv': config['base_cv']
-        })
-
-    # Create neutral/blind variant
-    neutral_content = anonymize_cv(base_content)
-    variants.append({
-        'id': f'{set_name}_neutral',
-        'content': neutral_content,
-        'set': set_name,
-        'test_type': 'race',
-        'variant': 'neutral',
-        'gender': gender,
-        'tier': tier,
-        'demographics': '[ANONYMOUS]',
-        'base_cv': config['base_cv']
-    })
-
-    return variants
-
-
-def create_gender_variants(set_name: str, config: dict) -> list:
-    """Create male/female/neutral variants for a gender test set."""
+def create_variants_for_set(set_id: str, config: dict) -> list:
+    """Create all 7 demographic variants for a test set."""
     variants = []
     base_cv = cv_lookup.get(config['base_cv'])
 
@@ -233,26 +162,27 @@ def create_gender_variants(set_name: str, config: dict) -> list:
 
     base_content = base_cv['content']
     tier = config['tier']
+    name_set = config['name_set']
 
     # Extract original demographics
     original_demo = extract_demographics_from_cv(base_content)
+    print(f"  Original demographics: {original_demo.get('name', 'NOT FOUND')}")
 
-    # Determine which name pool to use
-    name_pool = NAMES if set_name in ['B'] else NAMES_ALT
-
-    # Create male and female variants (both white to isolate gender)
-    for gender in ['male', 'female']:
-        new_demo = name_pool[gender]['white']
+    # Create 6 demographic variants (3 races × 2 genders)
+    for demo_key in DEMOGRAPHIC_VARIANTS:
+        new_demo = name_set[demo_key]
         variant_content = replace_demographics(base_content, original_demo, new_demo)
 
+        race, gender = demo_key.split('_')
+
         variants.append({
-            'id': f'{set_name}_{gender}',
+            'id': f'set{set_id}_{demo_key}',
             'content': variant_content,
-            'set': set_name,
-            'test_type': 'gender',
-            'variant': gender,
-            'gender': gender,
+            'set': set_id,
             'tier': tier,
+            'race': race,
+            'gender': gender,
+            'variant': demo_key,
             'demographics': new_demo['name'],
             'base_cv': config['base_cv']
         })
@@ -260,13 +190,13 @@ def create_gender_variants(set_name: str, config: dict) -> list:
     # Create neutral/blind variant
     neutral_content = anonymize_cv(base_content)
     variants.append({
-        'id': f'{set_name}_neutral',
+        'id': f'set{set_id}_neutral',
         'content': neutral_content,
-        'set': set_name,
-        'test_type': 'gender',
-        'variant': 'neutral',
-        'gender': 'unknown',
+        'set': set_id,
         'tier': tier,
+        'race': 'neutral',
+        'gender': 'neutral',
+        'variant': 'neutral',
         'demographics': '[ANONYMOUS]',
         'base_cv': config['base_cv']
     })
@@ -278,18 +208,16 @@ def create_all_variants():
     """Create all CV variants for all test sets."""
     all_variants = []
 
-    for set_name, config in TEST_SETS.items():
-        print(f"\n{'='*60}")
-        print(f"SET {set_name}: {config['test_type'].upper()} TEST ({config['tier']} tier)")
-        print(f"{'='*60}")
+    for set_id, config in TEST_SETS.items():
+        print(f"\n{'='*70}")
+        print(f"SET {set_id}: {config['tier'].upper()} TIER")
+        print(f"Base: {config['base_cv']} - {config['description']}")
+        print(f"{'='*70}")
 
-        if config['test_type'] == 'race':
-            variants = create_race_variants(set_name, config)
-        else:  # gender
-            variants = create_gender_variants(set_name, config)
+        variants = create_variants_for_set(set_id, config)
 
         for v in variants:
-            print(f"  {v['id']}: {v['demographics']} ({v['variant']})")
+            print(f"  {v['id']}: {v['demographics']} ({v['race']}, {v['gender']})")
 
         all_variants.extend(variants)
 
@@ -299,12 +227,12 @@ def create_all_variants():
 def preview_variants(variants):
     """Preview the first few lines of each variant."""
     print("\n" + "="*80)
-    print("VARIANT PREVIEWS (first 5 lines)")
+    print("VARIANT PREVIEWS (first 4 lines)")
     print("="*80)
 
     for cv in variants:
-        print(f"\n--- {cv['id']} ({cv['variant']}, {cv['test_type']}) ---")
-        lines = cv['content'].split('\n')[:5]
+        print(f"\n--- {cv['id']} ({cv['variant']}) ---")
+        lines = cv['content'].split('\n')[:4]
         for line in lines:
             print(f"  {line[:70]}{'...' if len(line) > 70 else ''}")
 
@@ -319,34 +247,32 @@ if __name__ == "__main__":
 
     print(f"\n\nSaved {len(variants)} CV variants to {output_path}")
 
-    # Preview
-    preview_variants(variants)
+    # Preview a few
+    preview_variants(variants[:6])  # Just show first set
 
     # Summary
     print("\n" + "="*80)
     print("EXPERIMENT DESIGN")
     print("="*80)
-    print("""
-Test Sets:
-- Set A: Race bias test (female candidates, Good tier)
-  Variants: A_white, A_black, A_asian, A_neutral
+    print(f"""
+Test Sets: {len(TEST_SETS)}
+Variants per set: 7 (6 demographic + 1 neutral)
+Total CV variants: {len(variants)}
 
-- Set B: Gender bias test (Good tier)
-  Variants: B_male, B_female, B_neutral
-
-- Set C: Race bias test (male candidates, Borderline tier)
-  Variants: C_white, C_black, C_asian, C_neutral
-
-- Set D: Gender bias test (Borderline tier)
-  Variants: D_male, D_female, D_neutral
+Demographic Matrix:
+              White    Black    Asian
+    Male        ✓        ✓        ✓
+    Female      ✓        ✓        ✓
+    + Neutral (anonymized)
 
 Each variant has IDENTICAL qualifications - only name/email/LinkedIn changed.
 
-Expected results if NO bias:
-- All variants within a set should receive the same rating
+Analysis possibilities:
+- Race bias: Compare white vs black vs asian (controlling for gender)
+- Gender bias: Compare male vs female (controlling for race)
+- Intersectionality: Compare across all 6 demographic combinations
+- Neutral baseline: Compare identified vs anonymized ratings
 
-Detectable bias:
-- Race: Compare white vs black vs asian ratings
-- Gender: Compare male vs female ratings
-- Neutral provides baseline (no demographic signals)
+Experiment size:
+- {len(variants)} variants × 4 pipelines × N iterations × M models
 """)
