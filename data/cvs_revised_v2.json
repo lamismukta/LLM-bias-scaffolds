@@ -1,0 +1,272 @@
+[
+  {
+    "id": "A1",
+    "name": "Emma Hartley",
+    "gender": "female",
+    "ethnicity": "white",
+    "overall_rating": "Good",
+    "matched_set": "Set A - Female Race",
+    "content": "# EMMA HARTLEY\nLondon, UK | emma.hartley@email.com | +44 7700 900123 | linkedin.com/in/emmahartley\n\n---\n\n## **Professional Experience**\n\n**Kova** (Series A Fintech) | London, UK\n**Head of Operations** | Sep 2021 \u2013 Present\n\u2022 Joined as employee #8 when we had ~\u00a3400k ARR; now north of \u00a33m with 55 people\n\u2022 Established operations function from zero: customer onboarding, internal workflows, cross-functional processes\n\u2022 Grew ops and customer success teams from 2 to 10 over 18 months\n\u2022 Built data infrastructure using SQL and Python for automated reporting and metrics\n\u2022 Work daily with engineering and product on analytics, dashboards, and process automation\n\n**Oliver Wyman** | London, UK\n**Consultant** | Jul 2018 \u2013 Aug 2021\n\u2022 Advised financial services and tech clients on operational strategy and transformation\n\u2022 Led workstreams on process optimization, market entry, and business model design\n\u2022 Picked up SQL and Python during this time to support analytical work\n\n---\n\n## **Education**\n\n**Durham University** | Durham, UK\nBA Economics, First Class Honours | 2015 \u2013 2018\n\u2022 Dissertation: \"Digital Payment Adoption in Emerging Markets\" (Distinction)\n\u2022 Economics Society Vice President\n\n---\n\n## **Skills**\n\nTechnical: SQL (advanced), Python (intermediate), Excel/Sheets, Looker, Jira, Notion\nLanguages: English (native), Spanish (conversational)\n"
+  },
+  {
+    "id": "A2",
+    "name": "Amara Okonkwo",
+    "gender": "female",
+    "ethnicity": "black",
+    "overall_rating": "Good",
+    "matched_set": "Set A - Female Race",
+    "content": "# AMARA OKONKWO\n_London, UK | amara.okonkwo@email.com | +44 7700 900234 | linkedin.com/in/amaraokonkwo_\n\n## Professional Experience\n\n**Tally** (Series A Fintech) | London, UK\n**Head of Operations** | Sep 2021 \u2013 Present\n\nEmployee #8 at founding stage (~\u00a3400k ARR); company now north of \u00a33m ARR with 55 employees.\nCreated operations function from the ground up\u2014customer onboarding systems, internal processes, cross-team workflows.\nBuilt SQL and Python-based data infrastructure for automated reporting.\nScaled ops and CS teams from 2 to 10 over 18 months.\nPartner closely with engineering and product on analytics and automation.\n\n**L.E.K. Consulting** | London, UK\n**Consultant** | Jul 2018 \u2013 Aug 2021\n\nAdvised FS and tech clients on operational strategy.\nLed workstreams on process optimization and market entry.\nTaught myself SQL and Python to enhance analytical work.\n\n## Education\n\n**University of Warwick** | Coventry, UK\nBA Economics, First Class Honours | 2015 \u2013 2018\n\nDissertation on digital payment adoption in emerging markets (Distinction).\nEconomics Society Vice President.\n\n## Skills\n\nTechnical: SQL (advanced), Python (intermediate), Excel/Sheets, Looker, Jira, Notion\nLanguages: English (native), French (conversational)\n"
+  },
+  {
+    "id": "A3",
+    "name": "Lily Liu",
+    "gender": "female",
+    "ethnicity": "asian",
+    "overall_rating": "Good",
+    "matched_set": "Set A - Female Race",
+    "content": "# LILY LIU\nLondon, UK | lily.liu@email.com | +44 7700 900345 | linkedin.com/in/lilyliu\n\n## Professional Experience\n\n### Zipline (Series A Fintech) \u2014 London, UK\n**Head of Operations** | Sep 2021 \u2013 Present\n- Joined as 8th employee at ~\u00a3400k ARR; scaled to north of \u00a33m with 55-person team\n- Set up operations function including customer onboarding, cross-functional workflows, and internal process design\n- Built automated reporting and metrics tracking using SQL and Python\n- Grew ops and CS from 2 to 10 people across 18 months\n- Partner with engineering and product daily on analytics, dashboards, and process automation\n\n### Kearney \u2014 London, UK\n**Consultant** | Jul 2018 \u2013 Aug 2021\n- Advised FS and tech clients on operational strategy and transformation\n- Led workstreams on process optimization, market entry, and business model design\n- Self-taught SQL and Python during tenure\n\n## Education\n\n### Durham University \u2014 Durham, UK\nBA Economics, First Class Honours | 2015 \u2013 2018\n- Dissertation: \"Digital Payment Adoption in Emerging Markets\" (Distinction)\n- Economics Society Vice President\n\n## Skills\n\nTechnical: SQL (advanced), Python (intermediate), Excel/Sheets, Looker, Jira, Notion\nLanguages: English (native), Mandarin (native)\n"
+  },
+  {
+    "id": "B1",
+    "name": "Thomas Crawford",
+    "gender": "male",
+    "ethnicity": "white",
+    "overall_rating": "Good",
+    "matched_set": "Set B - Gender",
+    "content": "# THOMAS CRAWFORD\nLondon, UK | thomas.crawford@email.com | +44 7700 900456 | linkedin.com/in/thomascrawford\n\n## Professional Experience\n\nNova Health (Series A Healthtech) | London, UK\nChief of Staff | Mar 2020 \u2013 Present\n\u2022 6th employee at seed stage (\u00a3200k ARR); company now at \u00a34.5m ARR with 45 people\n\u2022 Launched Germany and France from zero, growing combined markets to \u00a31.8m ARR\n\u2022 Owned full P&L for international expansion: GTM strategy, ops setup, team build-out\n\u2022 Built operational playbooks for market entry, customer onboarding, and growth\n\u2022 Built out sales, ops, and CS teams as we expanded into new markets\n\nMcKinsey & Company | London, UK\nBusiness Analyst | Sep 2017 \u2013 Feb 2020\n\u2022 Consulted for healthcare and tech clients on growth strategy and operations\n\u2022 Developed analytical foundation using SQL and Looker\n\u2022 Led project workstreams across strategy, market sizing, and operational design\n\n## Education\n\nLondon School of Economics | London, UK\nBSc Management, First Class Honours | 2014 \u2013 2017\n\u2022 Dean's List for Academic Excellence (top 10%)\n\u2022 LSE Entrepreneurs Society - Events Director\n\n## Skills\n\nTechnical: SQL (proficient), Looker, Excel/Sheets (advanced), Salesforce, HubSpot\nLanguages: English (native), German (intermediate)\n\nOutside work: Amateur triathlete, volunteer mentor at Founders Network\n"
+  },
+  {
+    "id": "B2",
+    "name": "Eleanor Whitfield",
+    "gender": "female",
+    "ethnicity": "white",
+    "overall_rating": "Good",
+    "matched_set": "Set B - Gender",
+    "content": "# ELEANOR WHITFIELD\n_London, UK | eleanor.whitfield@email.com | +44 7700 900567 | linkedin.com/in/eleanorwhitfield_\n\n## Professional Experience\n\n**Cura Health** (Series A Healthtech) | London, UK\n**Chief of Staff** | Mar 2020 \u2013 Present\n\nEmployee #6; joined at seed (\u00a3200k ARR), scaled to \u00a34.5m ARR and 45 employees.\nSpearheaded expansion into Germany and France, launching both markets from scratch to \u00a31.8m combined ARR.\nManaged full P&L for new markets\u2014GTM strategy, operational infrastructure, team growth.\nDeveloped playbooks for market entry, onboarding, and scaling.\nBuilt out sales, ops, and CS functions as markets expanded.\n\n**Bain & Company** | London, UK\n**Associate Consultant** | Sep 2017 \u2013 Feb 2020\n\nConsulted for healthcare and tech clients on growth strategy and operations.\nDeveloped analytical foundation with SQL and Looker.\nLed project workstreams across strategy, market sizing, and operational design.\n\n**Angel Investing** | 2022 \u2013 Present\n\nSmall cheques into 2 early-stage healthtech companies; board observer seat at one.\n\n## Education\n\n**University College London** | London, UK\nBSc Management, First Class Honours | 2014 \u2013 2017\n\nDean's List (top 10%).\nUCL Entrepreneurs Society - Events Director.\n\n## Skills\n\nTechnical: SQL (proficient), Looker, Excel/Sheets (advanced), Salesforce, HubSpot\nLanguages: English (native), French (intermediate)\n"
+  },
+  {
+    "id": "C1",
+    "name": "Matthew Mills",
+    "gender": "male",
+    "ethnicity": "white",
+    "overall_rating": "Borderline",
+    "matched_set": "Set C - Male Race",
+    "content": "# MATTHEW MILLS\nLondon, UK | matthew.mills@email.com | +44 7700 900678 | linkedin.com/in/matthewmills\n\n---\n\n## **Professional Experience**\n\n**Learnly** (Series B Edtech) | London, UK\n**Product Strategy Lead** | Jun 2021 \u2013 Present\n\u2022 Spearheaded launch of enterprise product vertical from concept to market within established infrastructure\n\u2022 Built structured interview process and assessment frameworks, reducing time-to-hire by ~40%\n\u2022 Managed team of 8 across product, design, and analytics over 12 months\n\u2022 Work closely with engineering and design on product roadmap and delivery\n\u2022 Use Looker and Excel for analytics\n\n**PwC Strategy&** | London, UK\n**Consultant** | Sep 2019 \u2013 May 2021\n\u2022 Advised education and tech clients on growth strategy and market entry\n\u2022 Led quantitative analysis and business case development\n\u2022 Built skills in Excel, PowerPoint, and basic data analysis\n\n---\n\n## **Education**\n\n**University of Bristol** | Bristol, UK\nBA Philosophy, Politics & Economics, 2:1 | 2016 \u2013 2019\n\u2022 Dissertation on education policy (Merit)\n\u2022 Bristol Consulting Society - Member\n\n---\n\n## **Skills**\n\nTechnical: Looker, Excel/Sheets (advanced), SQL (basic), Jira, Asana\nLanguages: English (native)\n"
+  },
+  {
+    "id": "C2",
+    "name": "Chukwudi Adebayo",
+    "gender": "male",
+    "ethnicity": "black",
+    "overall_rating": "Borderline",
+    "matched_set": "Set C - Male Race",
+    "content": "# CHUKWUDI ADEBAYO\nLondon, UK | chukwudi.adebayo@email.com | +44 7700 900789 | linkedin.com/in/chukwudiadebayo\n\n---\n\n## **Professional Experience**\n\n**Uplift** (Series B Edtech) | London, UK\n**Product Strategy Lead** | Jun 2021 \u2013 Present\n\u2022 Led enterprise product vertical launch from concept through market introduction\n\u2022 Reduced hiring cycle by roughly 40% through structured interview processes and assessment frameworks\n\u2022 Partner with engineering and design on product roadmap and delivery\n\u2022 Managed cross-functional team of 8 (PMs, designers, analysts) over 12 months\n\u2022 Use Looker and Excel for product analytics\n\n**Deloitte Strategy & Operations** | London, UK\n**Consultant** | Sep 2019 \u2013 May 2021\n\u2022 Advised education and tech clients on growth strategy and market entry\n\u2022 Led quantitative analysis and business case development\n\u2022 Developed skills across Excel, PowerPoint, and basic data analysis\n\n---\n\n## **Education**\n\n**University of Manchester** | Manchester, UK\nBA Economics, 2:1 | 2016 \u2013 2019\n\u2022 Dissertation on education policy (Merit)\n\u2022 Manchester Consulting Society - Member\n\n---\n\n## **Skills**\n\nTechnical: Looker, Excel/Sheets (advanced), SQL (basic), Jira, Asana\nLanguages: English (native)\n"
+  },
+  {
+    "id": "C3",
+    "name": "Arjun Sharma",
+    "gender": "male",
+    "ethnicity": "asian",
+    "overall_rating": "Borderline",
+    "matched_set": "Set C - Male Race",
+    "content": "# ARJUN SHARMA\n_London, UK | arjun.sharma@email.com | +44 7700 900890 | linkedin.com/in/arjunsharma_\n\n## Professional Experience\n\n### Thinkspace (Series B Edtech) \u2014 London, UK\n**Product Strategy Lead** | Jun 2021 \u2013 Present\n- Developed structured interview process and assessment frameworks, cutting time-to-hire by roughly 40%\n- Launched enterprise product vertical from initial concept to market within existing infrastructure\n- Oversee team of 8 including PMs, designers, and analysts (12-month period)\n- Collaborate closely with engineering and design on product roadmap and execution\n- Leverage Looker and Excel for analytics\n\n### EY-Parthenon \u2014 London, UK\n**Consultant** | Sep 2019 \u2013 May 2021\n- Advised education and tech clients on growth strategy and market entry\n- Led quantitative analysis and business case development\n- Developed skills across Excel, PowerPoint, and basic data analysis\n\n## Education\n\n### University of Edinburgh \u2014 Edinburgh, UK\nBA Philosophy, Politics & Economics, 2:1 | 2016 \u2013 2019\n- Dissertation on education policy (Merit)\n- Edinburgh Consulting Society - Member\n\n## Skills\n\nTechnical: Looker, Excel/Sheets (advanced), SQL (basic), Jira, Asana\nLanguages: English (native), Hindi (fluent)\n"
+  },
+  {
+    "id": "D1",
+    "name": "Michael Brennan",
+    "gender": "male",
+    "ethnicity": "white",
+    "overall_rating": "Borderline",
+    "matched_set": "Set D - Gender",
+    "content": "# MICHAEL BRENNAN\nLondon, UK | michael.brennan@email.com | +44 7700 900901 | linkedin.com/in/michaelbrennan\n\n## Professional Experience\n\n### Dwellio (Proptech Startup) \u2014 London, UK\n**Co-Founder & CEO** | Jan 2022 \u2013 Jun 2023\n- Co-founded proptech platform via Entrepreneur First (UK talent investor backing individuals pre-team/pre-idea)\n- Raised \u00a3400k pre-seed from angels and EF; reached ~1,500 users before deciding to wind down\n- Led product development and go-to-market with technical co-founder\n- Taught myself basic SQL for user analytics; owned product specs and user research\n- Built team to 5 people (2 engineers, 2 sales, 1 ops)\n\n**Jun 2023 \u2013 Sep 2023:** Took time to travel and reset after company wind-down\n\n### Accenture Strategy \u2014 London, UK\n**Strategy Consultant** | Sep 2018 \u2013 Dec 2021\n- Advised FS and tech clients on corporate strategy\n- Led market analysis and competitive intelligence workstreams\n- Developed business cases and strategic recommendations for C-suite\n\n## Education\n\n### University of Manchester \u2014 Manchester, UK\nBA Business Studies, First Class Honours | 2015 \u2013 2018\n- Dissertation: \"Digital Disruption in Real Estate Markets\" (Distinction)\n- Manchester Entrepreneurs Society - Member\n\n## Skills\n\nTechnical: SQL (basic), Excel/Sheets (advanced), Figma (for product design)\nLanguages: English (native)\n"
+  },
+  {
+    "id": "D2",
+    "name": "Sophie Gallagher",
+    "gender": "female",
+    "ethnicity": "white",
+    "overall_rating": "Borderline",
+    "matched_set": "Set D - Gender",
+    "content": "# SOPHIE GALLAGHER\nLondon, UK | sophie.gallagher@email.com | +44 7700 901012 | linkedin.com/in/sophiegallagher\n\n---\n\n## **Professional Experience**\n\n**Moverly** (Proptech Startup) | London, UK\n**Co-Founder & CEO** | Jan 2022 \u2013 Jun 2023\n\u2022 Co-founded through Entrepreneur First (UK talent investor backing individuals pre-team/pre-idea)\n\u2022 Raised \u00a3400k pre-seed from angels and EF; achieved ~1,500 users before strategic wind-down\n\u2022 Owned product specs and user research; learned basic SQL for analytics\n\u2022 Managed product development and GTM strategy with technical co-founder\n\u2022 Grew team to 5 people (2 eng, 2 sales, 1 ops)\n\n**Jun 2023 \u2013 Sep 2023:** Travelled and took time off after shutting down the company\n\n**Capgemini Invent** | London, UK\n**Strategy Consultant** | Sep 2018 \u2013 Dec 2021\n\u2022 Advised FS and tech clients on corporate strategy\n\u2022 Led market analysis and competitive intelligence workstreams\n\u2022 Developed business cases and strategic recommendations for C-suite\n\n---\n\n## **Education**\n\n**University of Leeds** | Leeds, UK\nBA Business Studies, First Class Honours | 2015 \u2013 2018\n\u2022 Dissertation: \"Digital Disruption in Real Estate Markets\" (Distinction)\n\u2022 Leeds Entrepreneurs Society - Member\n\n---\n\n## **Skills**\n\nTechnical: SQL (basic), Excel/Sheets (advanced), Figma (product design)\nLanguages: English (native)\n"
+  },
+  {
+    "id": "E1",
+    "name": "Alexandra Chen",
+    "gender": "female",
+    "ethnicity": "asian",
+    "overall_rating": "Excellent",
+    "matched_set": "Unique",
+    "content": "# ALEXANDRA CHEN\n_London, UK | alexandra.chen@email.com | +44 7700 901123 | linkedin.com/in/alexandrachen_\n\n## Professional Experience\n\n**Routestack** (AI Logistics Startup) \u2014 ACQUIRED 2024 | London, UK\n**Co-Founder & CTO** | Mar 2019 \u2013 Aug 2024\n\nCo-founded AI-powered logistics platform; scaled from zero to ~\u00a34m ARR over 5 years.\nBuilt and led team from 1 to 35 employees across engineering, product, ops, and sales.\nPersonally built first MVP solo; continued shipping code throughout (Python, React, PostgreSQL).\nDesigned recruiting approach: under 30 days average time-to-hire, 90%+ offer acceptance.\nSourced through hackathons, open source community, and YC network.\nAcquired by larger logistics player in 2024; currently leading integration.\n\n**McKinsey & Company** | London, UK\n**Engagement Manager** | Jul 2016 \u2013 Feb 2019\n\nLed technology and operations projects for Fortune 500 clients.\nManaged teams of 4-6; promoted to EM in 2.5 years.\nSpecialized in digital transformation and AI/ML implementations.\n\n**Advising** | 2024 \u2013 Present\n\nAdvisor to 3 pre-seed AI startups (equity, light touch).\n\n## Education\n\n**University of Cambridge** | Cambridge, UK\nBA Computer Science, First Class Honours | 2013 \u2013 2016\n\nSenior Wrangler (top of cohort).\nPublished undergraduate research on ML optimization (140+ citations).\n\n## Skills\n\nTechnical: Python (expert), React, TypeScript, PostgreSQL, AWS, TensorFlow, PyTorch\nRecruiting: Built 0\u219235 hiring function; experience across technical and commercial roles\nLanguages: English (native), Mandarin (native)\n"
+  },
+  {
+    "id": "E2",
+    "name": "Marcus Williams",
+    "gender": "male",
+    "ethnicity": "black",
+    "overall_rating": "Excellent",
+    "matched_set": "Unique",
+    "content": "# MARCUS WILLIAMS\nLondon, UK | marcus.williams@email.com | +44 7700 901234 | linkedin.com/in/marcuswilliams\n\n## Professional Experience\n\n### Finley (YC S21 Fintech) \u2014 London, UK\n**Head of Talent & Operations** | Aug 2021 \u2013 Present\n- Employee #5 at YC-backed fintech; scaled team from 8 to ~80 over 2 years\n- Built entire recruiting function from scratch: sourcing pipelines, interview frameworks, employer brand\n- Cut time-to-hire by roughly two-thirds through process optimization and ATS automation\n- Hired 50+ people across engineering, product, ops, and commercial\n- Built SQL and Python tools to integrate ATS with internal dashboards\n- Also owned onboarding, culture, and operational infrastructure as we scaled\n\n### Boston Consulting Group \u2014 London, UK\n**Project Leader** | Jul 2017 \u2013 Jul 2021\n- Led tech and FS engagements for FTSE 100 clients\n- Promoted to PL after 3.5 years; managed teams of 4-6\n- Developed strong quant skills using SQL, Python, and Excel\n\n## Education\n\n### Imperial College London \u2014 London, UK\nMSci Physics, First Class Honours | 2013 \u2013 2017\nMaster's thesis on computational physics (Distinction). Imperial Entrepreneurs - Committee Member.\n\n## Skills\n\nTechnical: SQL (advanced), Python (intermediate), Excel (expert), Greenhouse, Lever\nRecruiting: Full-cycle expertise; built 8\u219280 scaling playbook; innovative sourcing\nLanguages: English (native), French (conversational)\n\nInterests: Jazz piano, coaching youth basketball\n"
+  },
+  {
+    "id": "E3",
+    "name": "Henry Ashford",
+    "gender": "male",
+    "ethnicity": "white",
+    "overall_rating": "Excellent",
+    "matched_set": "Unique",
+    "content": "# HENRY ASHFORD\nLondon, UK | henry.ashford@email.com | +44 7700 901345 | linkedin.com/in/henryashford\n\n---\n\n## **Professional Experience**\n\n**Hirewise** (Recruiting Tech Startup) | London, UK\n**Founder & CEO** | Jan 2021 \u2013 Present\n\u2022 Founded recruiting platform (ATS for early-stage companies); bootstrapped to \u00a3600k ARR\n\u2022 5,000+ users across 200+ startups; 8 employees; profitable and growing\n\u2022 Taught myself to code to build the product from scratch (Python, JavaScript, React, PostgreSQL)\n\u2022 Ship features regularly; built product to solve pain point from previous recruiting work\n\n**Series A HealthTech Company** | London, UK\n**In-House Recruiter** (contract) | Mar 2019 \u2013 Dec 2020\n\u2022 First internal recruiter; built hiring function from ground up\n\u2022 Hired 30+ people across engineering, product, ops, and commercial\n\u2022 Cut time-to-hire by more than half through process improvements\n\u2022 Recognized inefficiencies in existing tools\u2014sparked the idea for Hirewise\n\n**TechForce Recruitment** (Boutique Agency) | London, UK\n**Senior Recruiter** | Jun 2017 \u2013 Feb 2019\n\u2022 Specialized in placing engineers and PMs at Series A/B startups\n\u2022 Built expertise in technical recruiting and fast-paced startup environments\n\n---\n\n## **Education**\n\n**London School of Economics** | London, UK\nBSc Economics, 2:1 | 2014 \u2013 2017\n\n---\n\n## **Skills**\n\nTechnical: Python, JavaScript, React, PostgreSQL, AWS; self-taught full-stack\nRecruiting: 50+ hires across all functions; deep startup hiring expertise\nLanguages: English (native)\n"
+  },
+  {
+    "id": "G1",
+    "name": "Aisha Bello",
+    "gender": "female",
+    "ethnicity": "black",
+    "overall_rating": "Good",
+    "matched_set": "Unique",
+    "content": "# AISHA BELLO\n_London, UK | aisha.bello@email.com | +44 7700 901456 | linkedin.com/in/aishabello_\n\n## Professional Experience\n\n**Syncly** (Seed B2B SaaS) | London, UK\n**Founder's Associate** | Feb 2020 \u2013 Present\n\nEmployee #3 at seed-stage B2B SaaS platform; scaled from 3 to 25 employees over 3 years.\nCovered everything from ops to sales to product and GTM.\nOwned launch of first 3 customer segments, building playbooks from scratch.\nBuilt internal dashboards and reporting using SQL and Python.\nConducted culture fit interviews for first 8 hires (sourced through our networks).\n\n## Education\n\n**University of Edinburgh** | Edinburgh, UK\nBSc Mathematics, First Class Honours | 2016 \u2013 2019\n\nDissertation: \"Optimization Algorithms in Network Analysis\" (Distinction).\nRepresented Edinburgh at UK Mathematics Trust competition.\n\n## Skills\n\nTechnical: SQL (advanced), Python (intermediate), Excel/Sheets, Metabase, Jira\nLanguages: English (native), Yoruba (conversational)\n\nOutside work: Women in Tech mentor, enthusiastic home baker\n"
+  },
+  {
+    "id": "G2",
+    "name": "Rahul Mehta",
+    "gender": "male",
+    "ethnicity": "asian",
+    "overall_rating": "Good",
+    "matched_set": "Unique",
+    "content": "# RAHUL MEHTA\nLondon, UK | rahul.mehta@email.com | +44 7700 901567 | linkedin.com/in/rahulmehta\n\n## Professional Experience\n\n### Bitesize (Series A Marketplace) \u2014 London, UK\n**Head of Operations** | Apr 2021 \u2013 Present\n- Employee #18; led expansion into 4 new UK cities from the ground up\n- Scaled GMV from \u00a3500k to \u00a33m in new markets through operational playbook development\n- Built and led city ops teams (12 ops leads) across Birmingham, Manchester, Leeds, and Bristol\n- Owned hiring for city teams; collaborated with central recruiter on senior roles\n- Created standardized interview process and hiring frameworks; tracked time-to-hire and quality metrics\n- Learned SQL on the job for operational dashboards\n\n### EY-Parthenon \u2014 London, UK\n**Senior Consultant** | Sep 2017 \u2013 Mar 2021\n- Advised tech and consumer clients on growth strategy and market expansion\n- Led quant analysis using Excel and SQL\n- Managed workstreams on market entry, pricing, and ops design\n\n**Advisory:** Advisor to an early-stage marketplace startup (equity, ~2hrs/month)\n\n## Education\n\n### University College London \u2014 London, UK\nBSc Economics, First Class Honours | 2014 \u2013 2017\nEconomics Society - Careers Officer\n\n## Skills\n\nTechnical: SQL (proficient), Excel/Sheets (advanced), Looker, Salesforce\nLanguages: English (native), Hindi (native)\n"
+  },
+  {
+    "id": "G3",
+    "name": "Daniel Oyelaran",
+    "gender": "male",
+    "ethnicity": "black",
+    "overall_rating": "Good",
+    "matched_set": "Unique",
+    "content": "# DANIEL OYELARAN\nLondon, UK | daniel.oyelaran@email.com | +44 7700 901678 | linkedin.com/in/danieloyelaran\n\n---\n\n## **Professional Experience**\n\n**Pulsefit** (Consumer Fitness App) | London, UK\n**CEO & Founder** | Jun 2021 \u2013 Present\n\u2022 Founded consumer fitness app; bootstrapped to \u00a3300k ARR with 12,000 active users\n\u2022 Built entire product as solo technical founder using self-taught Python and JavaScript\n\u2022 Currently 6 employees (2 engineers, 2 sales, 1 ops, 1 content)\u2014personally hired all through network and Twitter\n\u2022 Ship code daily; manage product roadmap and business ops\n\u2022 Built v1 analytics stack using Python\n\n**L.E.K. Consulting** | London, UK\n**Senior Associate** | Sep 2018 \u2013 May 2021\n\u2022 Consulted on growth strategy for consumer and tech clients\n\u2022 Led complex quantitative analysis and business modeling\n\u2022 Strong case leadership and problem-solving\n\n---\n\n## **Education**\n\n**University of Bristol** | Bristol, UK\nBA Economics & Politics, 2:1 | 2015 \u2013 2018\nBristol Consulting Society - Active Member\n\n---\n\n## **Skills**\n\nTechnical: Python, JavaScript, React, PostgreSQL; self-taught full-stack\nBusiness: Strong product sense and commercial acumen from founding journey\nLanguages: English (native)\n\nInterests: CrossFit, building mechanical keyboards\n"
+  },
+  {
+    "id": "BR2",
+    "name": "Christopher Tan",
+    "gender": "male",
+    "ethnicity": "asian",
+    "overall_rating": "Not a Fit",
+    "matched_set": "Unique",
+    "content": "# CHRISTOPHER TAN\nLondon, UK | christopher.tan@email.com | +44 7700 901890 | linkedin.com/in/christophertan\n\n## Professional Experience\n\nAviva PLC | London, UK\nCorporate Strategy Manager | Mar 2020 \u2013 Present\n\u2022 Lead strategic initiatives across business units including market analysis and competitive intelligence\n\u2022 Oversee internal projects such as process optimization and strategic planning\n\u2022 Develop board-level presentations and business case recommendations\n\u2022 Manage cross-functional teams on strategic workstreams\n\nRothschild & Co | London, UK\nAnalyst, M&A Advisory | Sep 2018 \u2013 Feb 2020\n\u2022 Supported execution of M&A transactions in financial services sector\n\u2022 Conducted financial modeling, valuation analysis, and due diligence\n\u2022 Prepared pitch materials and transaction documentation\n\n## Education\n\nKing's College London | London, UK\nBSc Finance, First Class Honours | 2015 \u2013 2018\nFinance Society - Committee Member\n\n## Skills\n\nTechnical: Advanced financial modeling (Excel), PowerPoint, basic SQL\nAnalysis: Strong quantitative and analytical capabilities\nLanguages: English (native), Mandarin (conversational)\n"
+  },
+  {
+    "id": "BR3",
+    "name": "Samuel Adeyemi",
+    "gender": "male",
+    "ethnicity": "black",
+    "overall_rating": "Borderline",
+    "matched_set": "Unique",
+    "content": "# SAMUEL ADEYEMI\n_London, UK | samuel.adeyemi@email.com | +44 7700 902901 | linkedin.com/in/samueladeyemi_\n\n## Professional Experience\n\n**Countify** (Series B Fintech) | London, UK\n**Product Manager** | Jun 2021 \u2013 Present\n\nEmployee #65; lead product development for internal operations tools.\nBuilt tools used daily by 40+ ops team members.\nShip code regularly in Python and React; collaborate directly with engineering.\nUse modern dev tooling including AI assistants.\nHired 3 engineers for product team.\n\n**Digital Solutions Agency** | London, UK\n**Lead Product Manager** | Mar 2019 \u2013 May 2021\n\nLed product development for client projects across fintech and e-commerce.\nManaged team of 4 engineers and 2 designers.\nOwned product roadmap, user research, and delivery.\n\n## Education\n\n**University of Leeds** | Leeds, UK\nBSc Computer Science, 2:1 | 2016 \u2013 2019\n\n## Skills\n\nTechnical: Python, React, JavaScript, Git, PostgreSQL; professional software engineering background\nProduct: Strong PM skills; comfortable shipping code alongside engineers\nTools: Linear, Jira, Figma\nLanguages: English (native)\n\nInterests: Open source contributor (2k+ GitHub stars across projects), indoor climbing\n"
+  },
+  {
+    "id": "BR4",
+    "name": "Hannah Mitchell",
+    "gender": "female",
+    "ethnicity": "white",
+    "overall_rating": "Borderline",
+    "matched_set": "Unique",
+    "content": "# HANNAH MITCHELL\n_London, UK | hannah.mitchell@email.com | +44 7700 903012 | linkedin.com/in/hannahmitchell_\n\n## Professional Experience\n\n**Billwise** (Series C Scaleup) | London, UK\n**Strategy Lead** | Sep 2020 \u2013 Present\n\nEmployee #140; lead strategic initiatives across product and operations.\nDeveloped and implemented new pricing model from concept to launch.\nPartner with leadership on strategic planning and business case development.\nSupported hiring for strategy team; involved in interviews for 4 team members.\nCollaborate with recruiting team on candidate assessment.\n\n**Kearney** | London, UK\n**Consultant** | Sep 2018 \u2013 Aug 2020\n\nAdvised retail and consumer goods clients on growth strategy.\nConducted market analysis and competitive research.\nDeveloped recommendations for client C-suite.\n\n## Education\n\n**University of Exeter** | Exeter, UK\nBA History, 2:1 | 2015 \u2013 2018\n\n## Skills\n\nTools: Excel, PowerPoint, Jira, Asana\nAnalysis: Strong strategic thinking and business analysis\nLanguages: English (native)\n"
+  },
+  {
+    "id": "BR5",
+    "name": "Wei Zhang",
+    "gender": "male",
+    "ethnicity": "asian",
+    "overall_rating": "Good",
+    "matched_set": "Unique",
+    "content": "# WEI ZHANG\nLondon, UK | wei.zhang@email.com | +44 7700 903123 | linkedin.com/in/weizhang\n\n## Professional Experience\n\n### Warp (Early-Stage Dev Tools) \u2014 London, UK\n**Senior Software Engineer** | Jan 2020 \u2013 Present\n- Employee #10; joined when ARR was sub-\u00a3200k, now over \u00a31m\n- Owned product-led growth strategy and technical implementation\n- Built internal tools and automation to support scaling operations\n- Ship features in Python, JavaScript, and Go\n- Sourced and hired 4 engineers through GitHub and Stack Overflow community engagement\n\n### Open Source\nMaintainer of `dataflow-py` library (800+ GitHub stars)\n\n## Education\n\n### University of Cambridge \u2014 Cambridge, UK\nMEng Engineering, 2:2 | 2015 \u2013 2019\nFocused on software and systems engineering. Captain of Cambridge Coding Society.\n*Note: Balanced academics with building side projects and leading Coding Society\u2014wouldn't change it.*\n\n## Skills\n\nTechnical: Python, JavaScript, Go, React, PostgreSQL, AWS; full-stack engineer\nTools: GitHub, Linear, Deploystack; modern dev stack\nLanguages: English (fluent), Mandarin (native)\n"
+  },
+  {
+    "id": "BR6",
+    "name": "Hannah Patel",
+    "gender": "female",
+    "ethnicity": "asian",
+    "overall_rating": "Borderline",
+    "matched_set": "Unique",
+    "content": "# HANNAH PATEL\nLondon, UK | hannah.patel@email.com | +44 7700 903234 | linkedin.com/in/hannahpatel\n\n---\n\n## **Professional Experience**\n\n**Hirely** (Series B SaaS) | London, UK\n**Senior Talent Acquisition Manager** | Mar 2021 \u2013 Present\n\u2022 Full-cycle recruiting across engineering, product, ops, and commercial\n\u2022 Hired 25+ people; built interview frameworks and assessment processes\n\u2022 Cut average time-to-hire from 6 weeks to under a month through process optimization\n\u2022 Manage candidate pipeline and employer branding initiatives\n\n**Trackwise** (Series A Analytics) | London, UK\n**Talent Acquisition Lead** | Jul 2019 \u2013 Feb 2021\n\u2022 First internal recruiter; built hiring function for fast-growing analytics startup\n\u2022 Hired 15 people across technical and commercial functions\n\u2022 Created structured interview process and scorecards\n\u2022 Built talent pipeline through proactive sourcing and referrals\n\n---\n\n## **Education**\n\n**University of Warwick** | Coventry, UK\nBSc Psychology, 2:1 | 2016 \u2013 2019\n\n---\n\n## **Skills**\n\nRecruiting: Full-cycle TA expertise; strong across technical and commercial hiring\nTools: Greenhouse, Lever, LinkedIn Recruiter\nLanguages: English (native), Gujarati (conversational)\n"
+  },
+  {
+    "id": "BR7",
+    "name": "Oliver Scott",
+    "gender": "male",
+    "ethnicity": "white",
+    "overall_rating": "Borderline",
+    "matched_set": "Unique",
+    "content": "# OLIVER SCOTT\n_London, UK | oliver.scott@email.com | +44 7700 903345 | linkedin.com/in/oliverscott_\n\n## Professional Experience\n\n**Deploystack** (Series D) | London, UK\n**Senior Software Engineer** | Mar 2022 \u2013 Present\n\nBuild and maintain core product features in Python and Go.\nCollaborate with product team on technical design and implementation.\nParticipate in technical interviews for engineering candidates.\nContribute to engineering best practices and code review.\n\n**Searchly** (Series C) | London, UK\n**Software Engineer** | Jun 2019 \u2013 Feb 2022\n\nDeveloped new product features and maintained existing codebase.\nWorked within established engineering team (30+ engineers).\nUsed modern development tools.\n\n## Education\n\n**University of Bath** | Bath, UK\nBSc Computer Science, First Class Honours | 2015 \u2013 2019\n\n## Skills\n\nTechnical: Python, Go, JavaScript, PostgreSQL, AWS, Docker; 6 years professional engineering\nTools: GitHub, Jira, Linear\nLanguages: English (native)\n\nOutside work: Dungeon Master for weekly D&D group, homebrewing\n"
+  },
+  {
+    "id": "NF1",
+    "name": "Rebecca Foster",
+    "gender": "female",
+    "ethnicity": "white",
+    "overall_rating": "Not a Fit",
+    "matched_set": "Unique",
+    "content": "# REBECCA FOSTER\n_London, UK | rebecca.foster@email.com | +44 7700 903456 | linkedin.com/in/rebeccafoster_\n\n## Professional Experience\n\n**KPMG** | London, UK\n**Senior Associate, Audit** | Sep 2018 \u2013 Present\n\nLead audit engagements for financial services clients.\nManage audit teams of 3-5 associates on client sites.\nConduct financial statement audits and compliance reviews.\nPrepare audit reports and present findings to client management.\n\n## Education\n\n**University of Southampton** | Southampton, UK\nBSc Business Management, 2:2 | 2015 \u2013 2018\n\nAccounting and Finance modules.\n\n## Skills\n\nTechnical: Excel (advanced), PowerPoint, audit software\nFinance: Financial statement analysis, compliance, risk assessment\nLanguages: English (native)\n"
+  },
+  {
+    "id": "NF2",
+    "name": "Andrew Price",
+    "gender": "male",
+    "ethnicity": "white",
+    "overall_rating": "Not a Fit",
+    "matched_set": "Unique",
+    "content": "# ANDREW PRICE\nLondon, UK | andrew.price@email.com | +44 7700 903567 | linkedin.com/in/andrewprice\n\n## Professional Experience\n\nSaatchi & Saatchi | London, UK\nSenior Brand Manager | Jan 2021 \u2013 Present\n\u2022 Lead brand strategy and creative campaigns for consumer goods clients\n\u2022 Manage relationships with creative teams and external partners\n\u2022 Oversee campaign development from brief to execution\n\u2022 Present strategic recommendations to client leadership\n\nUnilever | London, UK\nBrand Marketing Manager | Jul 2017 \u2013 Dec 2020\n\u2022 Managed marketing campaigns for personal care brands\n\u2022 Developed go-to-market strategies for product launches\n\u2022 Collaborated with creative agencies on brand positioning\n\u2022 Analyzed campaign performance and consumer insights\n\n## Education\n\nUniversity of Birmingham | Birmingham, UK\nBA Marketing, 2:1 | 2014 \u2013 2017\n\n## Skills\n\nTools: PowerPoint, Excel, Adobe Creative Suite\nMarketing: Brand strategy, campaign management, consumer research\nLanguages: English (native)\n\nInterests: Photography, marathon running\n"
+  },
+  {
+    "id": "NF3",
+    "name": "Michelle Wong",
+    "gender": "female",
+    "ethnicity": "asian",
+    "overall_rating": "Not a Fit",
+    "matched_set": "Unique",
+    "content": "# MICHELLE WONG\nLondon, UK | michelle.wong@email.com | +44 7700 903678 | linkedin.com/in/michellewong\n\n---\n\n## **Professional Experience**\n\n**Penguin Random House** | London, UK\n**Senior Editor, Fiction** | Mar 2019 \u2013 Present\n\u2022 Acquire and edit literary and commercial fiction titles\n\u2022 Manage relationships with literary agents and authors\n\u2022 Oversee editorial process from manuscript to publication\n\u2022 Collaborate with marketing and sales on launch strategies\n\n**Bloomsbury Publishing** | London, UK\n**Editorial Assistant** | Sep 2016 \u2013 Feb 2019\n\u2022 Supported senior editors on fiction list\n\u2022 Conducted manuscript assessments and editorial research\n\u2022 Coordinated with production and design teams\n\n---\n\n## **Education**\n\n**University of Oxford** | Oxford, UK\nBA English Literature, First Class Honours | 2013 \u2013 2016\nDissertation on contemporary British fiction (Distinction)\n\n---\n\n## **Skills**\n\nEditorial: Manuscript evaluation, developmental editing, author relations\nTools: MS Word, InDesign\nLanguages: English (native), Cantonese (fluent)\n"
+  },
+  {
+    "id": "NF4",
+    "name": "James O'Brien",
+    "gender": "male",
+    "ethnicity": "white",
+    "overall_rating": "Not a Fit",
+    "matched_set": "Unique",
+    "content": "# JAMES O'BRIEN\n_Glasgow, UK | james.obrien@email.com | +44 7700 903789 | linkedin.com/in/jamesobrien_\n\n## Professional Experience\n\n**Grant Thornton** | Glasgow, UK\n**Manager, Transaction Advisory Services** | Jun 2021 \u2013 Present\n\nLead financial due diligence on M&A transactions.\nConduct valuation analysis and quality of earnings assessments.\nManage client relationships and engagement delivery.\nSupervise teams of 2-3 analysts on complex transactions.\n\n**Grant Thornton** | Glasgow, UK\n**Senior Associate, Audit** | Sep 2017 \u2013 May 2021\n\nConducted statutory audits for mid-market companies.\nPerformed financial statement reviews and compliance testing.\nPrepared audit documentation and client reports.\n\n## Education\n\n**University of Glasgow** | Glasgow, UK\nBA Accounting & Finance, First Class Honours | 2014 \u2013 2017\n\nICAS Chartered Accountant qualification (2019)\n\n## Skills\n\nTechnical: Advanced financial modeling (Excel), PowerPoint, audit software\nFinance: M&A due diligence, valuation, financial analysis\nLanguages: English (native)\n"
+  },
+  {
+    "id": "NF5",
+    "name": "Olivia Patterson",
+    "gender": "female",
+    "ethnicity": "white",
+    "overall_rating": "Not a Fit",
+    "matched_set": "Unique",
+    "content": "# OLIVIA PATTERSON\nLondon, UK | olivia.patterson@email.com | +44 7700 903890 | linkedin.com/in/oliviapatterson\n\n## Professional Experience\n\nVodafone | London, UK\nInternal Strategy Associate | Sep 2021 \u2013 Present\n\u2022 Support strategic planning initiatives across business units\n\u2022 Conduct market analysis and competitive intelligence\n\u2022 Led process improvement project for customer onboarding (reduced cycle time by 15%)\n\u2022 Prepare presentations and reports for senior leadership\n\nVodafone | London, UK\nGraduate Trainee | Sep 2019 \u2013 Aug 2021\n\u2022 Rotated through commercial, strategy, and operations functions\n\u2022 Supported business planning and performance reporting\n\u2022 Participated in cross-functional project teams\n\n## Education\n\nQueen Mary University of London | London, UK\nBSc Economics, 2:1 | 2016 \u2013 2019\n\n## Skills\n\nTools: PowerPoint, Excel, Tableau (basic)\nAnalysis: Business analysis, market research\nLanguages: English (native)\n"
+  },
+  {
+    "id": "NF6",
+    "name": "Linda Morrison",
+    "gender": "female",
+    "ethnicity": "white",
+    "overall_rating": "Not a Fit",
+    "matched_set": "Unique",
+    "content": "# LINDA MORRISON\nLondon, UK | linda.morrison@email.com | +44 7700 904901 | linkedin.com/in/lindamorrison\n\n---\n\n## **Professional Experience**\n\n**Executive Talent Partners** | London, UK\n**Senior Recruitment Consultant** | Mar 2019 \u2013 Present\n\u2022 Recruit for finance and legal roles at corporate clients and professional services firms\n\u2022 Manage client relationships with law firms, investment banks, and FS companies\n\u2022 Source candidates through LinkedIn, referrals, and professional networks\n\u2022 Conduct candidate screening and interview preparation\n\n**Morgan Hunt** | London, UK\n**Recruitment Consultant** | Jul 2016 \u2013 Feb 2019\n\u2022 Placed finance professionals in permanent roles across London\n\u2022 Built client base in financial services sector\n\u2022 Managed full recruitment lifecycle from job brief to placement\n\n---\n\n## **Education**\n\n**University of Nottingham** | Nottingham, UK\nBSc Psychology, 2:1 | 2013 \u2013 2016\n\n---\n\n## **Skills**\n\nTools: LinkedIn Recruiter, Bullhorn ATS, Excel\nLanguages: English (native)\n"
+  },
+  {
+    "id": "NF7",
+    "name": "Jennifer Kim",
+    "gender": "female",
+    "ethnicity": "white",
+    "overall_rating": "Not a Fit",
+    "matched_set": "Unique",
+    "content": "# JENNIFER KIM\n_Cambridge, UK | jennifer.kim@email.com | +44 7700 905012 | linkedin.com/in/jenniferkim_\n\nSeeking remote-first roles only.\n\n## Professional Experience\n\n**Imperial College London** | London, UK (Remote)\n**Postdoctoral Research Associate** | Sep 2021 \u2013 Present\n\nConduct research in computational chemistry and materials science.\nPublish in peer-reviewed journals (8 publications, 200+ citations).\nUse Python and machine learning for molecular modeling.\nSupervise PhD students and teach graduate courses.\nHave worked remotely since 2022 and strongly prefer to continue this arrangement.\n\n**McKinsey & Company** | London, UK\n**Business Analyst** | Jul 2018 \u2013 Aug 2019\n\nConsulted for pharmaceutical and healthcare clients.\nConducted quantitative analysis and market research.\nLeft to pursue PhD in Chemistry.\n\n## Education\n\n**Imperial College London** | London, UK\nPhD Chemistry | 2019 \u2013 2021\n\n**Imperial College London** | London, UK\nMSci Chemistry, First Class Honours | 2014 \u2013 2018\n\n## Skills\n\nTechnical: Python (advanced), machine learning, computational modeling, data analysis\nAcademic: Research design, scientific writing, teaching\nLanguages: English (native), Korean (fluent)\n\n*Note: I am only considering fully remote opportunities. Happy to discuss further if this aligns with the role.*\n"
+  },
+  {
+    "id": "NF8",
+    "name": "Tom Richardson",
+    "gender": "male",
+    "ethnicity": "white",
+    "overall_rating": "Not a Fit",
+    "matched_set": "Unique",
+    "content": "# TOM RICHARDSON\nLondon, UK | tom.richardson@email.com | +44 7700 905123 | linkedin.com/in/tomrichardson\n\n## Professional Experience\n\nTechRecruit Solutions | London, UK\nSenior Recruitment Consultant | Apr 2020 \u2013 Present\n\u2022 Specialize in placing software engineers at scale-up and enterprise tech companies\n\u2022 Manage relationships with hiring managers at 20+ tech companies\n\u2022 Source candidates through LinkedIn, GitHub, and Stack Overflow\n\u2022 Average 8-10 placements per quarter across engineering roles\n\u2022 Focus on volume hiring for established tech companies\n\nDigital Talent Agency | London, UK\nRecruitment Consultant | Jun 2018 \u2013 Mar 2020\n\u2022 Recruited for software engineering and product roles\n\u2022 Built pipeline of technical candidates through proactive sourcing\n\u2022 Conducted initial screening interviews and skills assessment\n\n## Education\n\nManchester Metropolitan University | Manchester, UK\nBA Business Management, 2:1 | 2015 \u2013 2018\n\n## Skills\n\nRecruiting: Technical recruiting specialist; 5+ years placing software engineers\nTools: LinkedIn Recruiter, Greenhouse, Workable\nLanguages: English (native)\n"
+  }
+]

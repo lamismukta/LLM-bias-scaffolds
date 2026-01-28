@@ -1,0 +1,76 @@
+[
+    {
+        "name": "Zero-to-One Operator",
+        "description": "Proven hands-on experience building operational systems from scratch in early-stage, high-growth startups, demonstrating a \"diagnose, build, then scale\" mindset. High-agency problem solver who can flex from strategy to execution.",
+        "criteria": {
+            "excellent": [
+                "Founded venture-backed company with traction (£100K+ ARR, Series A+, or exit)",
+                "First 10 employees at startup reaching product-market fit",
+                "Built entirely new functions/business units from zero"
+            ],
+            "good": [
+                "Early founding team (first 20-50 hires) with meaningful traction",
+                "Led 0→1 initiatives requiring building infrastructure from scratch",
+                "Bootstrapped ventures reaching real users/revenue"
+            ],
+            "weak": [
+                "Corporate backgrounds without startup exposure",
+                "Joined post-Series B when processes existed",
+                "Advisory-only without hands-on execution"
+            ],
+            "notAFit": [
+                "5+ years exclusively at Fortune 500 with no startup involvement",
+                "Purely advisory roles",
+                "Stated preference for corporate structure",
+                "Junior/mid-level roles without demonstrable startup experience"
+            ]
+        }
+    },
+    {
+        "name": "Technical T-Shape",
+        "description": "Sufficient technical or analytical depth to partner with engineers on product and small-scale automation. AI power user who actively uses AI tools to 10x output.",
+        "criteria": {
+            "excellent": [
+        "Professional engineering/data experience shipping production systems at Series A+ startups",
+        "Led analytics or ML product work at scale (1M+ users or Series B+)"
+        ],
+        "good": [
+        "Strong data/analytics with applied product experience at tech companies or funded startups",
+        "Comfortable prototyping automation and discussing technical trade-offs",
+        "STEM academic background"
+        ],
+        "weak": [
+        "Academic technical background without productised outcomes",
+        "IT support or general tech roles without deep analytical contribution"
+        ],
+        "notAFit": [
+        "Uncomfortable with technical concepts or unable to work with engineers",
+        "Non-STEM background without compensating analytical achievements"
+        ]
+        }
+            },
+    {
+        "name": "Recruitment Mastery",
+        "description": "Deep expertise in end-to-end recruitment, particularly within early-stage or high-growth technology companies. Built and optimised hiring pipelines from scratch.",
+        "criteria": {
+            "excellent": [
+        "Built 0→1 recruiting function (e.g., first 50 hires) at early-stage tech",
+        "Created systems and optimized metrics (30%+ time-to-hire reduction, 20%+ offer acceptance improvement)",
+        "Designed processes from scratch"
+        ],
+        "good": [
+        "Filled eg 5+ roles annually with end-to-end ownership (sourcing → offer)",
+        "Full-cycle recruitment experience in startups/tech",
+        "Clear examples of managing hiring processes"
+        ],
+        "weak": [
+        "Involved in recruiting but limited end-to-end ownership",
+        "Indicators like \"interviewed candidates,\" \"supported hiring,\" \"grew team through network\" (informal)"
+        ],
+        "notAFit": [
+        "No evidence of recruiting at all",
+        "CV has zero mention of hiring or interviewing"
+        ]
+        }
+    }
+]
