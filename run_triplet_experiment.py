@@ -25,7 +25,7 @@ from collections import defaultdict
 sys.path.insert(0, str(Path(__file__).parent))
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 
 # Scaffolds to test
