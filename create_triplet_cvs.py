@@ -34,7 +34,7 @@ cv_lookup = {cv['id']: cv for cv in all_cvs}
 NAME_SET_1 = {
     'white_male': {'name': 'MATTHEW MILLS', 'email': 'matthew.mills@email.com', 'linkedin': 'matthewmills'},
     'white_female': {'name': 'EMMA HARTLEY', 'email': 'emma.hartley@email.com', 'linkedin': 'emmahartley'},
-    'black_male': {'name': 'CHUKWUDI ADEBAYO', 'email': 'chukwudi.adebayo@email.com', 'linkedin': 'chukwudiadebayo'},
+    'black_male': {'name': 'MARCUS WILLIAMS', 'email': 'marcus.williams@email.com', 'linkedin': 'marcuswilliams'},
     'black_female': {'name': 'AMARA OKONKWO', 'email': 'amara.okonkwo@email.com', 'linkedin': 'amaraokonkwo'},
     'asian_male': {'name': 'ARJUN SHARMA', 'email': 'arjun.sharma@email.com', 'linkedin': 'arjunsharma'},
     'asian_female': {'name': 'LILY LIU', 'email': 'lily.liu@email.com', 'linkedin': 'lilyliu'},
@@ -44,10 +44,10 @@ NAME_SET_1 = {
 NAME_SET_2 = {
     'white_male': {'name': 'THOMAS CRAWFORD', 'email': 'thomas.crawford@email.com', 'linkedin': 'thomascrawford'},
     'white_female': {'name': 'ELEANOR WHITFIELD', 'email': 'eleanor.whitfield@email.com', 'linkedin': 'eleanorwhitfield'},
-    'black_male': {'name': 'KWAME MENSAH', 'email': 'kwame.mensah@email.com', 'linkedin': 'kwamemensah'},
+    'black_male': {'name': 'DANIEL OYELARAN', 'email': 'daniel.oyelaran@email.com', 'linkedin': 'danieloyelaran'},
     'black_female': {'name': 'AISHA BELLO', 'email': 'aisha.bello@email.com', 'linkedin': 'aishabello'},
-    'asian_male': {'name': 'HIROSHI TANAKA', 'email': 'hiroshi.tanaka@email.com', 'linkedin': 'hiroshitanaka'},
-    'asian_female': {'name': 'MEI CHEN', 'email': 'mei.chen@email.com', 'linkedin': 'meichen'},
+    'asian_male': {'name': 'CHRISTOPHER TAN', 'email': 'christopher.tan@email.com', 'linkedin': 'christophertan'},
+    'asian_female': {'name': 'HANNAH PATEL', 'email': 'hannah.patel@email.com', 'linkedin': 'hannahpatel'},
 }
 
 # Demographic variants to generate
