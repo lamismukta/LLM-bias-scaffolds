@@ -732,6 +732,330 @@ def plot_deviation_from_neutral(all_results: Dict[str, List[dict]],
     print(f"Saved neutral deviation plots to {output_dir}")
 
 
+def get_rating_distributions(data: List[dict], cv_meta: Dict[str, dict],
+                              pipeline: str) -> Dict[str, List[int]]:
+    """Get rating distributions for each demographic group."""
+    distributions = defaultdict(list)
+
+    for result in data:
+        if result['pipeline'] != pipeline:
+            continue
+
+        for ranking in result.get('rankings', []):
+            cv_id = ranking.get('cv_id')
+            rating = ranking.get('ranking', 0)
+
+            if cv_id not in cv_meta or rating <= 0:
+                continue
+
+            meta = cv_meta[cv_id]
+            race = meta['race']
+            gender = meta['gender']
+
+            if race == 'neutral':
+                distributions['neutral'].append(rating)
+            else:
+                distributions[f'{race}_{gender}'].append(rating)
+                distributions[race].append(rating)
+                distributions[gender].append(rating)
+
+    return distributions
+
+
+def plot_rating_distributions_by_scaffold(all_results: Dict[str, List[dict]],
+                                           cv_meta: Dict[str, dict],
+                                           output_dir: Path):
+    """
+    Plot rating distributions showing how scaffolds affect classification variance.
+    Shows violin/box plots of ratings for each demographic across scaffolds.
+    """
+    if not HAS_MATPLOTLIB:
+        return
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    for model in MODEL_ORDER:
+        if model not in all_results:
+            continue
+
+        data = all_results[model]
+
+        # Create figure with subplots for each pipeline
+        fig, axes = plt.subplots(2, 4, figsize=(20, 10))
+        fig.suptitle(f'Rating Distributions by Demographic: {model}', fontsize=14, fontweight='bold')
+
+        # Define demographic groups
+        race_groups = ['white', 'black', 'asian', 'neutral']
+        gender_groups = ['male', 'female']
+
+        race_colors = {'white': '#e74c3c', 'black': '#2ecc71', 'asian': '#3498db', 'neutral': '#95a5a6'}
+        gender_colors = {'male': '#9b59b6', 'female': '#e91e63'}
+
+        for col_idx, pipeline in enumerate(PIPELINES):
+            dist = get_rating_distributions(data, cv_meta, pipeline)
+
+            # Top row: Race distributions
+            ax_race = axes[0, col_idx]
+            race_data = [dist.get(r, []) for r in race_groups]
+
+            # Box plot for race
+            bp = ax_race.boxplot(race_data, tick_labels=race_groups, patch_artist=True)
+            for patch, race in zip(bp['boxes'], race_groups):
+                patch.set_facecolor(race_colors[race])
+                patch.set_alpha(0.7)
+
+            ax_race.set_title(f'{PIPELINE_LABELS[pipeline]}')
+            ax_race.set_ylabel('Rating' if col_idx == 0 else '')
+            ax_race.set_ylim(0.5, 4.5)
+            ax_race.axhline(y=2, color='gray', linestyle='--', alpha=0.5, label='Borderline')
+            ax_race.axhline(y=3, color='gray', linestyle=':', alpha=0.5, label='Good')
+            if col_idx == 0:
+                ax_race.set_ylabel('Rating (by Race)')
+
+            # Add jittered points
+            for i, (race, ratings) in enumerate(zip(race_groups, race_data)):
+                if ratings:
+                    x = np.random.normal(i + 1, 0.04, len(ratings))
+                    ax_race.scatter(x, ratings, alpha=0.3, s=20, color=race_colors[race])
+
+            # Bottom row: Gender distributions
+            ax_gender = axes[1, col_idx]
+            gender_data = [dist.get(g, []) for g in gender_groups]
+
+            bp = ax_gender.boxplot(gender_data, tick_labels=gender_groups, patch_artist=True)
+            for patch, gender in zip(bp['boxes'], gender_groups):
+                patch.set_facecolor(gender_colors[gender])
+                patch.set_alpha(0.7)
+
+            ax_gender.set_ylim(0.5, 4.5)
+            ax_gender.axhline(y=2, color='gray', linestyle='--', alpha=0.5)
+            ax_gender.axhline(y=3, color='gray', linestyle=':', alpha=0.5)
+            if col_idx == 0:
+                ax_gender.set_ylabel('Rating (by Gender)')
+
+            # Add jittered points
+            for i, (gender, ratings) in enumerate(zip(gender_groups, gender_data)):
+                if ratings:
+                    x = np.random.normal(i + 1, 0.04, len(ratings))
+                    ax_gender.scatter(x, ratings, alpha=0.3, s=20, color=gender_colors[gender])
+
+        plt.tight_layout()
+        plt.savefig(output_dir / f'rating_distributions_{model.replace(".", "_")}.png', dpi=150, bbox_inches='tight')
+        plt.close()
+
+    print(f"Saved rating distribution plots to {output_dir}")
+
+
+def plot_classification_consistency(all_results: Dict[str, List[dict]],
+                                     cv_meta: Dict[str, dict],
+                                     output_dir: Path):
+    """
+    Plot how consistent classifications are across iterations.
+    Shows standard deviation of ratings as a measure of consistency.
+    """
+    if not HAS_MATPLOTLIB:
+        return
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Collect std dev for each model/pipeline/demographic
+    data_for_plot = []
+
+    for model in MODEL_ORDER:
+        if model not in all_results:
+            continue
+
+        results = all_results[model]
+
+        for pipeline in PIPELINES:
+            dist = get_rating_distributions(results, cv_meta, pipeline)
+
+            for demo in ['white', 'black', 'asian', 'male', 'female', 'neutral']:
+                ratings = dist.get(demo, [])
+                if ratings:
+                    std = np.std(ratings)
+                    data_for_plot.append({
+                        'model': model,
+                        'pipeline': pipeline,
+                        'demographic': demo,
+                        'std': std,
+                        'n': len(ratings)
+                    })
+
+    # Create heatmap of standard deviations
+    models = [m for m in MODEL_ORDER if m in all_results]
+    demographics = ['white', 'black', 'asian', 'male', 'female', 'neutral']
+
+    fig, axes = plt.subplots(2, 2, figsize=(16, 14))
+    fig.suptitle('Rating Consistency by Model and Demographic\n(Lower std = more consistent)',
+                 fontsize=14, fontweight='bold')
+
+    for ax_idx, pipeline in enumerate(PIPELINES):
+        ax = axes[ax_idx // 2, ax_idx % 2]
+
+        # Build matrix
+        matrix = np.zeros((len(models), len(demographics)))
+        for i, model in enumerate(models):
+            for j, demo in enumerate(demographics):
+                matches = [d for d in data_for_plot
+                          if d['model'] == model and d['pipeline'] == pipeline and d['demographic'] == demo]
+                if matches:
+                    matrix[i, j] = matches[0]['std']
+
+        im = ax.imshow(matrix, cmap='YlOrRd', aspect='auto', vmin=0, vmax=0.6)
+        ax.set_title(PIPELINE_LABELS[pipeline])
+        ax.set_yticks(range(len(models)))
+        ax.set_yticklabels(models)
+        ax.set_xticks(range(len(demographics)))
+        ax.set_xticklabels(demographics, rotation=45, ha='right')
+        plt.colorbar(im, ax=ax, label='Std Dev')
+
+        # Add values
+        for i in range(len(models)):
+            for j in range(len(demographics)):
+                ax.text(j, i, f'{matrix[i,j]:.2f}', ha='center', va='center', fontsize=8)
+
+    plt.tight_layout()
+    plt.savefig(output_dir / 'classification_consistency.png', dpi=150, bbox_inches='tight')
+    plt.close()
+
+    print(f"Saved classification consistency plot to {output_dir}")
+
+
+def plot_intersectionality_heatmap(all_results: Dict[str, List[dict]],
+                                    cv_meta: Dict[str, dict],
+                                    output_dir: Path):
+    """
+    Plot heatmap showing mean ratings for each intersectional group
+    (race × gender combinations) across scaffolds.
+    """
+    if not HAS_MATPLOTLIB:
+        return
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    intersections = ['white_male', 'white_female', 'black_male', 'black_female',
+                     'asian_male', 'asian_female', 'neutral']
+    intersection_labels = ['White\nMale', 'White\nFemale', 'Black\nMale', 'Black\nFemale',
+                          'Asian\nMale', 'Asian\nFemale', 'Neutral']
+
+    for model in MODEL_ORDER:
+        if model not in all_results:
+            continue
+
+        data = all_results[model]
+
+        # Build matrix: pipelines × intersections
+        matrix = np.zeros((len(PIPELINES), len(intersections)))
+
+        for i, pipeline in enumerate(PIPELINES):
+            dist = get_rating_distributions(data, cv_meta, pipeline)
+            for j, inter in enumerate(intersections):
+                if inter == 'neutral':
+                    ratings = dist.get('neutral', [])
+                else:
+                    ratings = dist.get(inter, [])
+                if ratings:
+                    matrix[i, j] = np.mean(ratings)
+
+        # Create heatmap
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+        im = ax.imshow(matrix, cmap='RdYlGn', aspect='auto', vmin=1, vmax=4)
+        ax.set_title(f'Mean Rating by Intersectional Group: {model}', fontsize=14, fontweight='bold')
+        ax.set_yticks(range(len(PIPELINES)))
+        ax.set_yticklabels([PIPELINE_LABELS[p] for p in PIPELINES])
+        ax.set_xticks(range(len(intersections)))
+        ax.set_xticklabels(intersection_labels)
+        plt.colorbar(im, ax=ax, label='Mean Rating')
+
+        # Add values
+        for i in range(len(PIPELINES)):
+            for j in range(len(intersections)):
+                ax.text(j, i, f'{matrix[i,j]:.2f}', ha='center', va='center',
+                       fontsize=10, fontweight='bold')
+
+        # Add ground truth reference
+        ax.axvline(x=5.5, color='black', linestyle='-', linewidth=2)
+
+        plt.tight_layout()
+        plt.savefig(output_dir / f'intersectionality_{model.replace(".", "_")}.png', dpi=150, bbox_inches='tight')
+        plt.close()
+
+    print(f"Saved intersectionality heatmaps to {output_dir}")
+
+
+def plot_scaffold_effect_summary(all_results: Dict[str, List[dict]],
+                                  cv_meta: Dict[str, dict],
+                                  output_dir: Path):
+    """
+    Create a summary visualization showing how each scaffold affects bias
+    relative to one-shot baseline across all models.
+    """
+    if not HAS_MATPLOTLIB:
+        return
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    models = [m for m in MODEL_ORDER if m in all_results]
+
+    # Calculate bias change relative to one-shot for each model
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    fig.suptitle('Scaffold Effect on Bias (relative to One-Shot baseline)',
+                 fontsize=14, fontweight='bold')
+
+    x = np.arange(len(models))
+    width = 0.25
+
+    bias_types = [('w_b', 'White-Black'), ('w_a', 'White-Asian'), ('m_f', 'Male-Female')]
+
+    for ax_idx, (bias_attr, bias_label) in enumerate(bias_types):
+        ax = axes[ax_idx]
+
+        for i, pipeline in enumerate(['chain_of_thought', 'multi_layer', 'decomposed_algorithmic']):
+            changes = []
+
+            for model in models:
+                data = all_results[model]
+
+                # Get one-shot baseline
+                baseline_bias, _, _ = analyze_model_pipeline(data, cv_meta, 'one_shot')
+                baseline_val = getattr(baseline_bias, bias_attr)
+
+                # Get this pipeline's bias
+                pipeline_bias, _, _ = analyze_model_pipeline(data, cv_meta, pipeline)
+                pipeline_val = getattr(pipeline_bias, bias_attr)
+
+                # Change in absolute bias
+                change = abs(pipeline_val) - abs(baseline_val)
+                changes.append(change)
+
+            offset = (i - 1) * width
+            colors = ['#e74c3c' if c > 0 else '#2ecc71' for c in changes]
+            bars = ax.bar(x + offset, changes, width, label=PIPELINE_LABELS[pipeline],
+                         color=colors, edgecolor='black', linewidth=0.5, alpha=0.8)
+
+        ax.axhline(y=0, color='black', linestyle='-', linewidth=1)
+        ax.set_ylabel('Change in |Bias| from One-Shot')
+        ax.set_title(f'{bias_label} Bias')
+        ax.set_xticks(x)
+        ax.set_xticklabels(models, rotation=45, ha='right')
+        ax.set_ylim(-0.3, 0.3)
+
+        if ax_idx == 2:
+            ax.legend(loc='upper right')
+
+    # Add annotation
+    fig.text(0.5, 0.02, 'Green = bias reduced, Red = bias increased (relative to one-shot)',
+             ha='center', fontsize=10, style='italic')
+
+    plt.tight_layout(rect=[0, 0.05, 1, 0.95])
+    plt.savefig(output_dir / 'scaffold_effect_summary.png', dpi=150, bbox_inches='tight')
+    plt.close()
+
+    print(f"Saved scaffold effect summary to {output_dir}")
+
+
 def main():
     parser = argparse.ArgumentParser(description='Analyze bias in LLM CV rating experiments')
     parser.add_argument('--results-dir', type=Path, default=Path('results'),
@@ -773,6 +1097,10 @@ def main():
         plot_summary_heatmaps(all_results, cv_meta, args.output)
         plot_bias_vs_quality(all_results, cv_meta, args.output)
         plot_deviation_from_neutral(all_results, cv_meta, args.output)
+        plot_rating_distributions_by_scaffold(all_results, cv_meta, args.output)
+        plot_classification_consistency(all_results, cv_meta, args.output)
+        plot_intersectionality_heatmap(all_results, cv_meta, args.output)
+        plot_scaffold_effect_summary(all_results, cv_meta, args.output)
 
         print(f"\nAll visualizations saved to {args.output}/")
     elif not HAS_MATPLOTLIB:
