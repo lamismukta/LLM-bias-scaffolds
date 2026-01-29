@@ -28,13 +28,15 @@ METHODOLOGY
         Positive = favors white, Negative = favors black
       - W-A (White - Asian): Average rating for white names minus Asian names
         Positive = favors white, Negative = favors Asian
+      - B-A (Black - Asian): Average rating for black names minus Asian names
+        Positive = favors black, Negative = favors Asian
 
    b) Gender Bias:
       - M-F (Male - Female): Average rating for male names minus female names
         Positive = favors male, Negative = favors female
 
    c) Total Bias:
-      - Sum of absolute values: |W-B| + |W-A| + |M-F|
+      - Sum of absolute values: |W-B| + |W-A| + |B-A| + |M-F|
       - Represents overall deviation from fair treatment
 
    d) Deviation from Neutral:
@@ -110,6 +112,7 @@ class BiasMetrics:
     neutral_mean: float
     w_b: float  # White - Black
     w_a: float  # White - Asian
+    b_a: float  # Black - Asian
     m_f: float  # Male - Female
     total_bias: float
     # Deviations from neutral
@@ -176,8 +179,9 @@ def calculate_bias_metrics(ratings_by_demo: Dict[str, List[float]],
     # Bias calculations
     w_b = white_mean - black_mean
     w_a = white_mean - asian_mean
+    b_a = black_mean - asian_mean
     m_f = male_mean - female_mean
-    total_bias = abs(w_b) + abs(w_a) + abs(m_f)
+    total_bias = abs(w_b) + abs(w_a) + abs(b_a) + abs(m_f)
 
     # Deviations from neutral
     white_dev = white_mean - neutral_mean
@@ -191,7 +195,7 @@ def calculate_bias_metrics(ratings_by_demo: Dict[str, List[float]],
     return BiasMetrics(
         white_mean=white_mean, black_mean=black_mean, asian_mean=asian_mean,
         male_mean=male_mean, female_mean=female_mean, neutral_mean=neutral_mean,
-        w_b=w_b, w_a=w_a, m_f=m_f, total_bias=total_bias,
+        w_b=w_b, w_a=w_a, b_a=b_a, m_f=m_f, total_bias=total_bias,
         white_dev=white_dev, black_dev=black_dev, asian_dev=asian_dev,
         male_dev=male_dev, female_dev=female_dev,
         n_samples=n_samples
@@ -279,13 +283,17 @@ BIAS MEASUREMENT METHODOLOGY
            → Positive = favors white candidates
            → Negative = favors Asian candidates
 
+     B-A = mean(black ratings) - mean(Asian ratings)
+           → Positive = favors black candidates
+           → Negative = favors Asian candidates
+
    Gender Bias:
      M-F = mean(male ratings) - mean(female ratings)
            → Positive = favors male candidates
            → Negative = favors female candidates
 
    Total Bias:
-     |W-B| + |W-A| + |M-F|
+     |W-B| + |W-A| + |B-A| + |M-F|
      → Represents overall magnitude of unfair treatment
      → 0 = perfectly fair, higher = more biased
 
@@ -326,12 +334,12 @@ def print_full_analysis(all_results: Dict[str, List[dict]], cv_meta: Dict[str, d
         print(f"MODEL: {model.upper()}")
         print(f"{'='*80}")
 
-        print(f"\n{'Pipeline':<25} {'W-B':>8} {'W-A':>8} {'M-F':>8} {'Bias':>8} {'MAE':>8} {'Quality':>8}")
-        print("-"*80)
+        print(f"\n{'Pipeline':<25} {'W-B':>8} {'W-A':>8} {'B-A':>8} {'M-F':>8} {'Bias':>8} {'MAE':>8} {'Quality':>8}")
+        print("-"*90)
 
         for pipeline in PIPELINES:
             bias, mae, quality = analyze_model_pipeline(data, cv_meta, pipeline)
-            print(f"{PIPELINE_LABELS[pipeline]:<25} {bias.w_b:>+8.2f} {bias.w_a:>+8.2f} "
+            print(f"{PIPELINE_LABELS[pipeline]:<25} {bias.w_b:>+8.2f} {bias.w_a:>+8.2f} {bias.b_a:>+8.2f} "
                   f"{bias.m_f:>+8.2f} {bias.total_bias:>8.2f} {mae:>8.2f} {quality:>8.1f}")
 
         # Deviation from neutral analysis
@@ -365,6 +373,7 @@ def plot_scaffold_effects_per_model(all_results: Dict[str, List[dict]],
         pipelines = []
         w_b_vals = []
         w_a_vals = []
+        b_a_vals = []
         m_f_vals = []
 
         for pipeline in PIPELINES:
@@ -372,10 +381,11 @@ def plot_scaffold_effects_per_model(all_results: Dict[str, List[dict]],
             pipelines.append(PIPELINE_LABELS[pipeline])
             w_b_vals.append(bias.w_b)
             w_a_vals.append(bias.w_a)
+            b_a_vals.append(bias.b_a)
             m_f_vals.append(bias.m_f)
 
         # Create figure with subplots
-        fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+        fig, axes = plt.subplots(1, 4, figsize=(20, 5))
         fig.suptitle(f'Bias by Scaffold Type: {model}', fontsize=14, fontweight='bold')
 
         x = np.arange(len(pipelines))
@@ -402,15 +412,25 @@ def plot_scaffold_effects_per_model(all_results: Dict[str, List[dict]],
         ax2.set_xticklabels(pipelines, rotation=45, ha='right')
         ax2.set_ylim(-0.5, 0.5)
 
-        # Gender bias: M-F
+        # Race bias: B-A
         ax3 = axes[2]
-        colors = ['#2ecc71' if v < 0 else '#3498db' for v in m_f_vals]
-        ax3.bar(x, m_f_vals, width, color=colors, edgecolor='black', linewidth=0.5)
+        colors = ['#2ecc71' if v < 0 else '#f39c12' for v in b_a_vals]
+        ax3.bar(x, b_a_vals, width, color=colors, edgecolor='black', linewidth=0.5)
         ax3.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
-        ax3.set_title('Male - Female\n(+ favors male)')
+        ax3.set_title('Black - Asian\n(+ favors black)')
         ax3.set_xticks(x)
         ax3.set_xticklabels(pipelines, rotation=45, ha='right')
         ax3.set_ylim(-0.5, 0.5)
+
+        # Gender bias: M-F
+        ax4 = axes[3]
+        colors = ['#2ecc71' if v < 0 else '#3498db' for v in m_f_vals]
+        ax4.bar(x, m_f_vals, width, color=colors, edgecolor='black', linewidth=0.5)
+        ax4.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
+        ax4.set_title('Male - Female\n(+ favors male)')
+        ax4.set_xticks(x)
+        ax4.set_xticklabels(pipelines, rotation=45, ha='right')
+        ax4.set_ylim(-0.5, 0.5)
 
         plt.tight_layout()
         plt.savefig(output_dir / f'scaffold_bias_{model.replace(".", "_")}.png', dpi=150, bbox_inches='tight')
@@ -434,6 +454,7 @@ def plot_model_comparison_by_scaffold(all_results: Dict[str, List[dict]],
         models = []
         w_b_vals = []
         w_a_vals = []
+        b_a_vals = []
         m_f_vals = []
         total_vals = []
 
@@ -447,11 +468,12 @@ def plot_model_comparison_by_scaffold(all_results: Dict[str, List[dict]],
             models.append(model)
             w_b_vals.append(bias.w_b)
             w_a_vals.append(bias.w_a)
+            b_a_vals.append(bias.b_a)
             m_f_vals.append(bias.m_f)
             total_vals.append(bias.total_bias)
 
-        # Create figure
-        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+        # Create figure with 5 subplots (2x3 grid, leave one empty or use for total)
+        fig, axes = plt.subplots(2, 3, figsize=(18, 10))
         fig.suptitle(f'Model Comparison: {PIPELINE_LABELS[pipeline]}', fontsize=14, fontweight='bold')
 
         x = np.arange(len(models))
@@ -477,23 +499,35 @@ def plot_model_comparison_by_scaffold(all_results: Dict[str, List[dict]],
         ax2.set_xticklabels(models, rotation=45, ha='right')
         ax2.set_ylim(-0.4, 0.4)
 
-        # M-F
-        ax3 = axes[1, 0]
-        ax3.bar(x, m_f_vals, width, color=colors, edgecolor='black', linewidth=0.5)
+        # B-A
+        ax3 = axes[0, 2]
+        ax3.bar(x, b_a_vals, width, color=colors, edgecolor='black', linewidth=0.5)
         ax3.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
-        ax3.set_ylabel('Bias')
-        ax3.set_title('Male - Female (+ favors male)')
+        ax3.set_title('Black - Asian (+ favors black)')
         ax3.set_xticks(x)
         ax3.set_xticklabels(models, rotation=45, ha='right')
         ax3.set_ylim(-0.4, 0.4)
 
-        # Total bias
-        ax4 = axes[1, 1]
-        ax4.bar(x, total_vals, width, color=colors, edgecolor='black', linewidth=0.5)
-        ax4.set_title('Total |Bias| (lower = better)')
+        # M-F
+        ax4 = axes[1, 0]
+        ax4.bar(x, m_f_vals, width, color=colors, edgecolor='black', linewidth=0.5)
+        ax4.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
+        ax4.set_ylabel('Bias')
+        ax4.set_title('Male - Female (+ favors male)')
         ax4.set_xticks(x)
         ax4.set_xticklabels(models, rotation=45, ha='right')
-        ax4.set_ylim(0, 0.8)
+        ax4.set_ylim(-0.4, 0.4)
+
+        # Total bias
+        ax5 = axes[1, 1]
+        ax5.bar(x, total_vals, width, color=colors, edgecolor='black', linewidth=0.5)
+        ax5.set_title('Total |Bias| (lower = better)')
+        ax5.set_xticks(x)
+        ax5.set_xticklabels(models, rotation=45, ha='right')
+        ax5.set_ylim(0, 1.0)
+
+        # Hide the last subplot (axes[1, 2])
+        axes[1, 2].axis('off')
 
         plt.tight_layout()
         plt.savefig(output_dir / f'model_comparison_{pipeline}.png', dpi=150, bbox_inches='tight')
@@ -519,6 +553,7 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
 
     w_b_matrix = np.zeros((n_models, n_pipelines))
     w_a_matrix = np.zeros((n_models, n_pipelines))
+    b_a_matrix = np.zeros((n_models, n_pipelines))
     m_f_matrix = np.zeros((n_models, n_pipelines))
     total_matrix = np.zeros((n_models, n_pipelines))
     quality_matrix = np.zeros((n_models, n_pipelines))
@@ -529,12 +564,13 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
             bias, mae, quality = analyze_model_pipeline(data, cv_meta, pipeline)
             w_b_matrix[i, j] = bias.w_b
             w_a_matrix[i, j] = bias.w_a
+            b_a_matrix[i, j] = bias.b_a
             m_f_matrix[i, j] = bias.m_f
             total_matrix[i, j] = bias.total_bias
             quality_matrix[i, j] = quality
 
-    # Create heatmaps
-    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+    # Create heatmaps (3x2 grid for 6 plots)
+    fig, axes = plt.subplots(3, 2, figsize=(14, 18))
     fig.suptitle('Bias Analysis Summary Heatmaps', fontsize=16, fontweight='bold')
 
     pipeline_labels = [PIPELINE_LABELS[p] for p in PIPELINES]
@@ -566,62 +602,57 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
         for j in range(n_pipelines):
             axes[0, 1].text(j, i, f'{w_a_matrix[i,j]:.2f}', ha='center', va='center', fontsize=8)
 
-    # M-F heatmap
-    im3 = axes[0, 2].imshow(m_f_matrix, cmap='PuOr_r', aspect='auto', vmin=-0.3, vmax=0.3)
-    axes[0, 2].set_title('Male - Female Bias\n(purple = favors male)')
-    axes[0, 2].set_yticks(range(n_models))
-    axes[0, 2].set_yticklabels(models)
-    axes[0, 2].set_xticks(range(n_pipelines))
-    axes[0, 2].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im3, ax=axes[0, 2])
-
-    for i in range(n_models):
-        for j in range(n_pipelines):
-            axes[0, 2].text(j, i, f'{m_f_matrix[i,j]:.2f}', ha='center', va='center', fontsize=8)
-
-    # Total bias heatmap
-    im4 = axes[1, 0].imshow(total_matrix, cmap='Reds', aspect='auto', vmin=0, vmax=0.6)
-    axes[1, 0].set_title('Total |Bias|\n(darker = more biased)')
+    # B-A heatmap
+    im3 = axes[1, 0].imshow(b_a_matrix, cmap='BrBG_r', aspect='auto', vmin=-0.3, vmax=0.3)
+    axes[1, 0].set_title('Black - Asian Bias\n(brown = favors black)')
     axes[1, 0].set_yticks(range(n_models))
     axes[1, 0].set_yticklabels(models)
     axes[1, 0].set_xticks(range(n_pipelines))
     axes[1, 0].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im4, ax=axes[1, 0])
+    plt.colorbar(im3, ax=axes[1, 0])
 
     for i in range(n_models):
         for j in range(n_pipelines):
-            axes[1, 0].text(j, i, f'{total_matrix[i,j]:.2f}', ha='center', va='center', fontsize=8)
+            axes[1, 0].text(j, i, f'{b_a_matrix[i,j]:.2f}', ha='center', va='center', fontsize=8)
 
-    # Quality score heatmap
-    im5 = axes[1, 1].imshow(quality_matrix, cmap='Greens', aspect='auto', vmin=65, vmax=100)
-    axes[1, 1].set_title('Quality Score\n(darker = better)')
+    # M-F heatmap
+    im4 = axes[1, 1].imshow(m_f_matrix, cmap='PuOr_r', aspect='auto', vmin=-0.3, vmax=0.3)
+    axes[1, 1].set_title('Male - Female Bias\n(purple = favors male)')
     axes[1, 1].set_yticks(range(n_models))
     axes[1, 1].set_yticklabels(models)
     axes[1, 1].set_xticks(range(n_pipelines))
     axes[1, 1].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im5, ax=axes[1, 1])
+    plt.colorbar(im4, ax=axes[1, 1])
 
     for i in range(n_models):
         for j in range(n_pipelines):
-            axes[1, 1].text(j, i, f'{quality_matrix[i,j]:.0f}', ha='center', va='center', fontsize=8)
+            axes[1, 1].text(j, i, f'{m_f_matrix[i,j]:.2f}', ha='center', va='center', fontsize=8)
 
-    # Best combinations text
-    axes[1, 2].axis('off')
+    # Total bias heatmap
+    im5 = axes[2, 0].imshow(total_matrix, cmap='Reds', aspect='auto', vmin=0, vmax=0.8)
+    axes[2, 0].set_title('Total |Bias|\n(darker = more biased)')
+    axes[2, 0].set_yticks(range(n_models))
+    axes[2, 0].set_yticklabels(models)
+    axes[2, 0].set_xticks(range(n_pipelines))
+    axes[2, 0].set_xticklabels(pipeline_labels, rotation=45, ha='right')
+    plt.colorbar(im5, ax=axes[2, 0])
 
-    # Find top 5
-    all_scores = []
-    for i, model in enumerate(models):
-        for j, pipeline in enumerate(PIPELINES):
-            all_scores.append((model, pipeline, quality_matrix[i, j], total_matrix[i, j]))
+    for i in range(n_models):
+        for j in range(n_pipelines):
+            axes[2, 0].text(j, i, f'{total_matrix[i,j]:.2f}', ha='center', va='center', fontsize=8)
 
-    all_scores.sort(key=lambda x: -x[2])
+    # Quality score heatmap
+    im6 = axes[2, 1].imshow(quality_matrix, cmap='Greens', aspect='auto', vmin=65, vmax=100)
+    axes[2, 1].set_title('Quality Score\n(darker = better)')
+    axes[2, 1].set_yticks(range(n_models))
+    axes[2, 1].set_yticklabels(models)
+    axes[2, 1].set_xticks(range(n_pipelines))
+    axes[2, 1].set_xticklabels(pipeline_labels, rotation=45, ha='right')
+    plt.colorbar(im6, ax=axes[2, 1])
 
-    text = "TOP 10 COMBINATIONS\n(by Quality Score)\n\n"
-    for rank, (model, pipeline, quality, bias) in enumerate(all_scores[:10], 1):
-        text += f"{rank}. {model}\n   {PIPELINE_LABELS[pipeline]}\n   Quality: {quality:.1f}, Bias: {bias:.2f}\n\n"
-
-    axes[1, 2].text(0.1, 0.95, text, transform=axes[1, 2].transAxes, fontsize=10,
-                    verticalalignment='top', fontfamily='monospace')
+    for i in range(n_models):
+        for j in range(n_pipelines):
+            axes[2, 1].text(j, i, f'{quality_matrix[i,j]:.0f}', ha='center', va='center', fontsize=8)
 
     plt.tight_layout()
     plt.savefig(output_dir / 'summary_heatmaps.png', dpi=150, bbox_inches='tight')
@@ -664,7 +695,7 @@ def plot_bias_vs_quality(all_results: Dict[str, List[dict]],
                        (bias.total_bias, mae),
                        textcoords="offset points", xytext=(5, 5), fontsize=6)
 
-    ax.set_xlabel('Total Bias (|W-B| + |W-A| + |M-F|)', fontsize=12)
+    ax.set_xlabel('Total Bias (|W-B| + |W-A| + |B-A| + |M-F|)', fontsize=12)
     ax.set_ylabel('Mean Absolute Error (MAE)', fontsize=12)
     ax.set_title('Bias vs Accuracy Trade-off\n(Bottom-left = best)', fontsize=14, fontweight='bold')
 
@@ -1000,17 +1031,17 @@ def plot_scaffold_effect_summary(all_results: Dict[str, List[dict]],
     models = [m for m in MODEL_ORDER if m in all_results]
 
     # Calculate bias change relative to one-shot for each model
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
     fig.suptitle('Scaffold Effect on Bias (relative to One-Shot baseline)',
                  fontsize=14, fontweight='bold')
 
     x = np.arange(len(models))
     width = 0.25
 
-    bias_types = [('w_b', 'White-Black'), ('w_a', 'White-Asian'), ('m_f', 'Male-Female')]
+    bias_types = [('w_b', 'White-Black'), ('w_a', 'White-Asian'), ('b_a', 'Black-Asian'), ('m_f', 'Male-Female')]
 
     for ax_idx, (bias_attr, bias_label) in enumerate(bias_types):
-        ax = axes[ax_idx]
+        ax = axes[ax_idx // 2, ax_idx % 2]
 
         for i, pipeline in enumerate(['chain_of_thought', 'multi_layer', 'decomposed_algorithmic']):
             changes = []
@@ -1042,7 +1073,7 @@ def plot_scaffold_effect_summary(all_results: Dict[str, List[dict]],
         ax.set_xticklabels(models, rotation=45, ha='right')
         ax.set_ylim(-0.3, 0.3)
 
-        if ax_idx == 2:
+        if ax_idx == 3:
             ax.legend(loc='upper right')
 
     # Add annotation
