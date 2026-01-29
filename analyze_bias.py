@@ -1087,6 +1087,406 @@ def plot_scaffold_effect_summary(all_results: Dict[str, List[dict]],
     print(f"Saved scaffold effect summary to {output_dir}")
 
 
+# =============================================================================
+# CRITERIA-LEVEL BIAS ANALYSIS (for Decomposed Algorithmic Pipeline)
+# =============================================================================
+
+CRITERIA_NAMES = ['zero_to_one', 'technical_t_shape', 'recruitment_mastery']
+CRITERIA_LABELS = {
+    'zero_to_one': 'Zero-to-One',
+    'technical_t_shape': 'Technical T-Shape',
+    'recruitment_mastery': 'Recruitment Mastery'
+}
+
+
+def parse_criteria_from_reasoning(reasoning: str) -> Dict[str, dict]:
+    """Extract criteria scores from the reasoning text of decomposed_algorithmic results."""
+    import re
+    criteria = {}
+
+    # Pattern: criteria_name: Rating (score: N)
+    pattern = r'(zero_to_one|technical_t_shape|recruitment_mastery):\s*(\w+)\s*\(score:\s*(\d+)\)'
+    matches = re.findall(pattern, reasoning, re.IGNORECASE)
+
+    for criteria_name, rating, score in matches:
+        criteria[criteria_name.lower()] = {
+            'rating': rating,
+            'score': int(score)
+        }
+
+    return criteria
+
+
+def analyze_criteria_bias(all_results: Dict[str, List[dict]],
+                          cv_meta: Dict[str, dict]) -> Dict[str, Dict[str, Dict[str, List[float]]]]:
+    """
+    Analyze bias at the criteria level for the decomposed_algorithmic pipeline.
+
+    Returns:
+        {model: {criteria: {demographic: [scores]}}}
+    """
+    from collections import defaultdict
+
+    results_by_model = {}
+
+    for model_name, data in all_results.items():
+        # Filter to decomposed_algorithmic only
+        decomposed_results = [r for r in data if r['pipeline'] == 'decomposed_algorithmic']
+
+        # Collect scores by criteria and demographic
+        criteria_data = defaultdict(lambda: defaultdict(list))
+
+        for result in decomposed_results:
+            for ranking in result['rankings']:
+                cv_id = ranking['cv_id']
+                reasoning = ranking.get('reasoning', '')
+
+                if cv_id not in cv_meta:
+                    continue
+
+                meta = cv_meta[cv_id]
+                race = meta['race']
+                gender = meta['gender']
+
+                # Parse criteria scores from reasoning
+                criteria = parse_criteria_from_reasoning(reasoning)
+
+                for criteria_name, crit_data in criteria.items():
+                    score = crit_data['score']
+
+                    if race != 'neutral':
+                        criteria_data[criteria_name][race].append(score)
+                        criteria_data[criteria_name][gender].append(score)
+                        criteria_data[criteria_name][f'{race}_{gender}'].append(score)
+                    else:
+                        criteria_data[criteria_name]['neutral'].append(score)
+
+        results_by_model[model_name] = dict(criteria_data)
+
+    return results_by_model
+
+
+def calculate_criteria_bias_metrics(criteria_data: Dict[str, List[float]]) -> dict:
+    """Calculate bias metrics for a single criteria's demographic data."""
+
+    def safe_mean(lst):
+        return np.mean(lst) if lst else 0
+
+    white = criteria_data.get('white', [])
+    black = criteria_data.get('black', [])
+    asian = criteria_data.get('asian', [])
+    male = criteria_data.get('male', [])
+    female = criteria_data.get('female', [])
+    neutral = criteria_data.get('neutral', [])
+
+    w_mean = safe_mean(white)
+    b_mean = safe_mean(black)
+    a_mean = safe_mean(asian)
+    m_mean = safe_mean(male)
+    f_mean = safe_mean(female)
+    n_mean = safe_mean(neutral)
+
+    w_b = w_mean - b_mean
+    w_a = w_mean - a_mean
+    b_a = b_mean - a_mean
+    m_f = m_mean - f_mean
+
+    return {
+        'w_b': w_b,
+        'w_a': w_a,
+        'b_a': b_a,
+        'm_f': m_f,
+        'total_bias': abs(w_b) + abs(w_a) + abs(b_a) + abs(m_f),
+        'white_mean': w_mean,
+        'black_mean': b_mean,
+        'asian_mean': a_mean,
+        'male_mean': m_mean,
+        'female_mean': f_mean,
+        'neutral_mean': n_mean,
+        'n_samples': len(white) + len(black) + len(asian),
+    }
+
+
+def print_criteria_bias_analysis(all_results: Dict[str, List[dict]], cv_meta: Dict[str, dict]):
+    """Print detailed criteria-level bias analysis."""
+
+    print("\n" + "=" * 100)
+    print("CRITERIA-LEVEL BIAS ANALYSIS (Decomposed Algorithmic Pipeline)")
+    print("=" * 100)
+    print("""
+The decomposed algorithmic pipeline evaluates candidates on three criteria:
+  1. Zero-to-One Operator: Experience building from scratch in early-stage environments
+  2. Technical T-Shape: Depth in one technical area + breadth across others
+  3. Recruitment Mastery: Track record of hiring and building teams
+
+Each criterion is scored 1-4 (Not a Fit, Weak, Good, Excellent) and then averaged.
+This analysis examines which criteria exhibit the most demographic bias.
+""")
+
+    criteria_by_model = analyze_criteria_bias(all_results, cv_meta)
+
+    # Aggregate across all models
+    all_models_criteria = defaultdict(lambda: defaultdict(list))
+
+    for model_name in MODEL_ORDER:
+        if model_name not in criteria_by_model:
+            continue
+
+        model_data = criteria_by_model[model_name]
+
+        print(f"\n{'-'*80}")
+        print(f"MODEL: {model_name.upper()}")
+        print(f"{'-'*80}")
+
+        print(f"\n{'Criteria':<25} {'W-B':>8} {'W-A':>8} {'B-A':>8} {'M-F':>8} {'Total':>8}")
+        print("-" * 70)
+
+        for criteria in CRITERIA_NAMES:
+            if criteria in model_data:
+                bias = calculate_criteria_bias_metrics(model_data[criteria])
+                print(f"{CRITERIA_LABELS[criteria]:<25} {bias['w_b']:>+8.3f} {bias['w_a']:>+8.3f} "
+                      f"{bias['b_a']:>+8.3f} {bias['m_f']:>+8.3f} {bias['total_bias']:>8.3f}")
+
+                # Aggregate for cross-model analysis
+                for demo, scores in model_data[criteria].items():
+                    all_models_criteria[criteria][demo].extend(scores)
+
+    # Summary across all models
+    print("\n" + "=" * 100)
+    print("AGGREGATE CRITERIA BIAS ACROSS ALL MODELS")
+    print("=" * 100)
+
+    print(f"\n{'Criteria':<25} {'W-B':>8} {'W-A':>8} {'B-A':>8} {'M-F':>8} {'Total':>8} {'Most Biased':<20}")
+    print("-" * 100)
+
+    bias_summary = []
+    for criteria in CRITERIA_NAMES:
+        if criteria in all_models_criteria:
+            bias = calculate_criteria_bias_metrics(dict(all_models_criteria[criteria]))
+
+            # Find most biased dimension
+            biases = [
+                ('W-B', abs(bias['w_b']), bias['w_b']),
+                ('W-A', abs(bias['w_a']), bias['w_a']),
+                ('B-A', abs(bias['b_a']), bias['b_a']),
+                ('M-F', abs(bias['m_f']), bias['m_f']),
+            ]
+            most_biased = max(biases, key=lambda x: x[1])
+            direction = f"{most_biased[2]:+.3f}"
+
+            print(f"{CRITERIA_LABELS[criteria]:<25} {bias['w_b']:>+8.3f} {bias['w_a']:>+8.3f} "
+                  f"{bias['b_a']:>+8.3f} {bias['m_f']:>+8.3f} {bias['total_bias']:>8.3f} "
+                  f"{most_biased[0]} ({direction})")
+
+            bias_summary.append({
+                'criteria': criteria,
+                'label': CRITERIA_LABELS[criteria],
+                'total': bias['total_bias'],
+                'w_b': bias['w_b'],
+                'w_a': bias['w_a'],
+                'b_a': bias['b_a'],
+                'm_f': bias['m_f'],
+                'most_biased': most_biased[0],
+                'most_biased_value': most_biased[2]
+            })
+
+    # Rank by total bias
+    print("\n" + "-" * 100)
+    print("\nCRITERIA RANKED BY TOTAL BIAS:")
+    for i, item in enumerate(sorted(bias_summary, key=lambda x: x['total'], reverse=True), 1):
+        print(f"  {i}. {item['label']:<25} Total: {item['total']:.3f}  "
+              f"(Most biased: {item['most_biased']} = {item['most_biased_value']:+.3f})")
+
+    return bias_summary, dict(all_models_criteria)
+
+
+def plot_criteria_bias(all_results: Dict[str, List[dict]],
+                       cv_meta: Dict[str, dict],
+                       output_dir: Path):
+    """Generate visualizations for criteria-level bias analysis."""
+
+    if not HAS_MATPLOTLIB:
+        return
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    criteria_by_model = analyze_criteria_bias(all_results, cv_meta)
+
+    # Aggregate across all models
+    all_models_criteria = defaultdict(lambda: defaultdict(list))
+    for model_name, model_data in criteria_by_model.items():
+        for criteria, demo_data in model_data.items():
+            for demo, scores in demo_data.items():
+                all_models_criteria[criteria][demo].extend(scores)
+
+    # Figure 1: Criteria bias comparison (bar chart)
+    fig, axes = plt.subplots(1, 4, figsize=(18, 5))
+    fig.suptitle('Bias by Evaluation Criteria (Decomposed Algorithmic Pipeline)',
+                 fontsize=14, fontweight='bold')
+
+    criteria_labels = [CRITERIA_LABELS[c] for c in CRITERIA_NAMES]
+    x = np.arange(len(CRITERIA_NAMES))
+    width = 0.6
+
+    bias_types = [('w_b', 'White - Black', 'RdYlGn_r'),
+                  ('w_a', 'White - Asian', 'RdYlGn_r'),
+                  ('b_a', 'Black - Asian', 'BrBG_r'),
+                  ('m_f', 'Male - Female', 'PuOr_r')]
+
+    for ax_idx, (bias_key, bias_label, cmap) in enumerate(bias_types):
+        ax = axes[ax_idx]
+
+        values = []
+        for criteria in CRITERIA_NAMES:
+            if criteria in all_models_criteria:
+                bias = calculate_criteria_bias_metrics(dict(all_models_criteria[criteria]))
+                values.append(bias[bias_key])
+            else:
+                values.append(0)
+
+        colors = ['#e74c3c' if v > 0 else '#2ecc71' for v in values]
+        ax.bar(x, values, width, color=colors, edgecolor='black', linewidth=0.5)
+        ax.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
+        ax.set_ylabel('Bias (rating difference)')
+        ax.set_title(f'{bias_label}\n(+ favors first group)')
+        ax.set_xticks(x)
+        ax.set_xticklabels(criteria_labels, rotation=45, ha='right')
+        ax.set_ylim(-0.2, 0.2)
+
+    plt.tight_layout()
+    plt.savefig(output_dir / 'criteria_bias_comparison.png', dpi=150, bbox_inches='tight')
+    plt.close()
+
+    # Figure 2: Criteria bias heatmap by model
+    models = [m for m in MODEL_ORDER if m in criteria_by_model]
+    n_models = len(models)
+    n_criteria = len(CRITERIA_NAMES)
+
+    if n_models > 0:
+        fig, axes = plt.subplots(1, 4, figsize=(20, 6))
+        fig.suptitle('Criteria-Level Bias by Model (Decomposed Algorithmic)',
+                     fontsize=14, fontweight='bold')
+
+        for ax_idx, (bias_key, bias_label, _) in enumerate(bias_types):
+            ax = axes[ax_idx]
+
+            matrix = np.zeros((n_models, n_criteria))
+            for i, model in enumerate(models):
+                for j, criteria in enumerate(CRITERIA_NAMES):
+                    if criteria in criteria_by_model[model]:
+                        bias = calculate_criteria_bias_metrics(criteria_by_model[model][criteria])
+                        matrix[i, j] = bias[bias_key]
+
+            cmap = 'RdYlGn_r' if bias_key != 'm_f' else 'PuOr_r'
+            im = ax.imshow(matrix, cmap=cmap, aspect='auto', vmin=-0.3, vmax=0.3)
+
+            ax.set_title(f'{bias_label}')
+            ax.set_yticks(range(n_models))
+            ax.set_yticklabels(models)
+            ax.set_xticks(range(n_criteria))
+            ax.set_xticklabels(criteria_labels, rotation=45, ha='right')
+            plt.colorbar(im, ax=ax)
+
+            # Add values
+            for i in range(n_models):
+                for j in range(n_criteria):
+                    ax.text(j, i, f'{matrix[i,j]:.2f}', ha='center', va='center', fontsize=8)
+
+        plt.tight_layout()
+        plt.savefig(output_dir / 'criteria_bias_heatmap_by_model.png', dpi=150, bbox_inches='tight')
+        plt.close()
+
+    # Figure 3: Total bias by criteria (ranked)
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    totals = []
+    for criteria in CRITERIA_NAMES:
+        if criteria in all_models_criteria:
+            bias = calculate_criteria_bias_metrics(dict(all_models_criteria[criteria]))
+            totals.append((CRITERIA_LABELS[criteria], bias['total_bias'],
+                          bias['w_b'], bias['w_a'], bias['b_a'], bias['m_f']))
+
+    # Sort by total bias
+    totals.sort(key=lambda x: x[1], reverse=True)
+
+    labels = [t[0] for t in totals]
+    total_vals = [t[1] for t in totals]
+
+    y = np.arange(len(labels))
+    colors = plt.cm.Reds(np.linspace(0.3, 0.8, len(labels)))
+
+    bars = ax.barh(y, total_vals, color=colors, edgecolor='black', linewidth=0.5)
+
+    ax.set_xlabel('Total Bias (|W-B| + |W-A| + |B-A| + |M-F|)')
+    ax.set_ylabel('Evaluation Criteria')
+    ax.set_title('Total Bias by Evaluation Criteria\n(Decomposed Algorithmic Pipeline, All Models)',
+                 fontsize=12, fontweight='bold')
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels)
+    ax.invert_yaxis()
+
+    # Add value labels
+    for i, (bar, total) in enumerate(zip(bars, totals)):
+        ax.text(bar.get_width() + 0.005, bar.get_y() + bar.get_height()/2,
+                f'{total[1]:.3f}', va='center', fontsize=10)
+
+        # Add breakdown annotation
+        breakdown = f"W-B:{total[2]:+.2f} W-A:{total[3]:+.2f} B-A:{total[4]:+.2f} M-F:{total[5]:+.2f}"
+        ax.text(0.01, bar.get_y() + bar.get_height()/2, breakdown,
+                va='center', fontsize=8, color='white', fontweight='bold')
+
+    ax.set_xlim(0, max(total_vals) * 1.3)
+
+    plt.tight_layout()
+    plt.savefig(output_dir / 'criteria_bias_ranked.png', dpi=150, bbox_inches='tight')
+    plt.close()
+
+    # Figure 4: Mean scores by demographic for each criteria
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig.suptitle('Mean Scores by Demographic for Each Criteria', fontsize=14, fontweight='bold')
+
+    demographics = ['white', 'black', 'asian', 'male', 'female', 'neutral']
+    demo_colors = {
+        'white': '#3498db', 'black': '#9b59b6', 'asian': '#e74c3c',
+        'male': '#2ecc71', 'female': '#f39c12', 'neutral': '#95a5a6'
+    }
+
+    for ax_idx, criteria in enumerate(CRITERIA_NAMES):
+        ax = axes[ax_idx]
+
+        if criteria in all_models_criteria:
+            data = dict(all_models_criteria[criteria])
+
+            means = []
+            stds = []
+            colors = []
+            labels = []
+
+            for demo in demographics:
+                if demo in data and data[demo]:
+                    means.append(np.mean(data[demo]))
+                    stds.append(np.std(data[demo]))
+                    colors.append(demo_colors[demo])
+                    labels.append(demo.capitalize())
+
+            x = np.arange(len(labels))
+            bars = ax.bar(x, means, yerr=stds, capsize=3, color=colors,
+                         edgecolor='black', linewidth=0.5, alpha=0.8)
+
+            ax.set_ylabel('Mean Score (1-4)')
+            ax.set_title(CRITERIA_LABELS[criteria])
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels, rotation=45, ha='right')
+            ax.set_ylim(1, 4)
+            ax.axhline(y=2.5, color='gray', linestyle='--', alpha=0.5, label='Midpoint')
+
+    plt.tight_layout()
+    plt.savefig(output_dir / 'criteria_demographic_scores.png', dpi=150, bbox_inches='tight')
+    plt.close()
+
+    print(f"Saved criteria bias plots to {output_dir}")
+
+
 def main():
     parser = argparse.ArgumentParser(description='Analyze bias in LLM CV rating experiments')
     parser.add_argument('--results-dir', type=Path, default=Path('results'),
@@ -1119,6 +1519,9 @@ def main():
     # Print text analysis
     print_full_analysis(all_results, cv_meta)
 
+    # Print criteria-level bias analysis
+    print_criteria_bias_analysis(all_results, cv_meta)
+
     # Generate plots
     if not args.no_plots and HAS_MATPLOTLIB:
         print("\nGenerating visualizations...")
@@ -1132,6 +1535,7 @@ def main():
         plot_classification_consistency(all_results, cv_meta, args.output)
         plot_intersectionality_heatmap(all_results, cv_meta, args.output)
         plot_scaffold_effect_summary(all_results, cv_meta, args.output)
+        plot_criteria_bias(all_results, cv_meta, args.output)
 
         print(f"\nAll visualizations saved to {args.output}/")
     elif not HAS_MATPLOTLIB:
