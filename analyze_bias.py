@@ -122,7 +122,7 @@ def setup_modern_style():
         return
 
     # Use a clean style base
-    plt.style.use('seaborn-v0_8-whitegrid')
+    plt.style.use('seaborn-v0_8-white')
 
     # Custom color palette - modern, accessible colors
     MODERN_COLORS = {
@@ -168,15 +168,15 @@ def setup_modern_style():
         'figure.titleweight': 'bold',
         'figure.dpi': 150,
 
-        # Axes
+        # Axes - NO GRID for heatmaps
         'axes.facecolor': 'white',
         'axes.edgecolor': '#e5e7eb',
         'axes.linewidth': 1,
-        'axes.grid': True,
+        'axes.grid': False,
         'axes.spines.top': False,
         'axes.spines.right': False,
 
-        # Grid
+        # Grid (disabled by default, but configure for when enabled)
         'grid.color': '#f3f4f6',
         'grid.linewidth': 0.8,
         'grid.alpha': 1.0,
@@ -1508,7 +1508,7 @@ def plot_intersectionality_combined(all_results: Dict[str, List[dict]],
     """
     Create a single figure with all 6 models' intersectionality heatmaps.
     Shows mean ratings for each demographic group (race × gender) across all pipelines.
-    Uses 3x2 layout to avoid legend overlap.
+    Uses 3x2 layout with colorbar at bottom to avoid overlap.
     """
     if not HAS_MATPLOTLIB:
         return
@@ -1518,17 +1518,20 @@ def plot_intersectionality_combined(all_results: Dict[str, List[dict]],
 
     models = [m for m in MODEL_ORDER if m in all_results]
 
-    # 3x2 grid for 6 models (3 rows, 2 columns) - better layout to avoid legend overlap
-    fig, axes = plt.subplots(3, 2, figsize=(14, 16))
-    fig.suptitle('Intersectionality Analysis\nMean Ratings by Demographic Group',
-                 fontsize=18, fontweight='bold', y=0.98)
+    # 3x2 grid for 6 models (3 rows, 2 columns)
+    fig, axes = plt.subplots(3, 2, figsize=(12, 14))
+
+    # Title and subtitle
+    fig.suptitle('Intersectionality Analysis', fontsize=18, fontweight='bold', y=0.97)
+    fig.text(0.5, 0.94, 'Mean ratings by demographic group across all pipelines',
+             ha='center', fontsize=11, color='#6b7280', style='italic')
 
     demo_groups = ['white_male', 'white_female', 'black_male', 'black_female',
                    'asian_male', 'asian_female', 'neutral']
     demo_labels = ['W♂', 'W♀', 'B♂', 'B♀', 'A♂', 'A♀', 'N']
 
     # Modern colormap
-    cmap = plt.cm.RdYlBu_r  # Modern diverging colormap
+    cmap = 'RdYlBu_r'
 
     for idx, model in enumerate(models):
         ax = axes[idx // 2, idx % 2]
@@ -1558,32 +1561,33 @@ def plot_intersectionality_combined(all_results: Dict[str, List[dict]],
                 matrix[j, k] = np.mean(ratings) if ratings else 0
 
         im = ax.imshow(matrix, cmap=cmap, aspect='auto', vmin=1.5, vmax=3.5)
-        ax.set_title(model, fontsize=13, fontweight='semibold', pad=10)
+        ax.set_title(model, fontsize=12, fontweight='semibold', pad=8)
         ax.set_yticks(range(len(PIPELINES)))
-        ax.set_yticklabels([PIPELINE_LABELS[p] for p in PIPELINES], fontsize=10)
+        ax.set_yticklabels(['1-Shot', 'CoT', 'Multi', 'Decomp'], fontsize=9)
         ax.set_xticks(range(len(demo_groups)))
-        ax.set_xticklabels(demo_labels, fontsize=10, fontweight='medium')
+        ax.set_xticklabels(demo_labels, fontsize=9, fontweight='medium')
 
         # Add values with better contrast
         for j in range(len(PIPELINES)):
             for k in range(len(demo_groups)):
                 val = matrix[j, k]
-                # Better contrast logic
                 color = 'white' if val < 2.2 or val > 3.0 else '#1f2937'
                 ax.text(k, j, f'{val:.2f}', ha='center', va='center',
-                       fontsize=9, color=color, fontweight='medium')
+                       fontsize=8, color=color, fontweight='medium')
 
-    # Add colorbar to the right of all plots - positioned outside
-    cbar = fig.colorbar(im, ax=axes.ravel().tolist(), label='Mean Rating',
-                        shrink=0.6, aspect=30, pad=0.02)
-    cbar.ax.tick_params(labelsize=10)
+    # Adjust layout first to make room for colorbar at bottom
+    plt.tight_layout(rect=[0, 0.08, 1, 0.92])
 
-    # Add legend for demographic codes
+    # Add horizontal colorbar at the bottom
+    cbar_ax = fig.add_axes([0.15, 0.03, 0.7, 0.02])  # [left, bottom, width, height]
+    cbar = fig.colorbar(im, cax=cbar_ax, orientation='horizontal')
+    cbar.set_label('Mean Rating (1-4)', fontsize=10)
+    cbar.ax.tick_params(labelsize=9)
+
+    # Add legend for demographic codes at very bottom
     legend_text = 'W=White  B=Black  A=Asian  N=Neutral  ♂=Male  ♀=Female'
-    fig.text(0.5, 0.01, legend_text, ha='center', fontsize=10, color='#6b7280',
-             style='italic')
+    fig.text(0.5, 0.005, legend_text, ha='center', fontsize=9, color='#6b7280')
 
-    plt.tight_layout(rect=[0, 0.03, 0.95, 0.96])
     plt.savefig(output_dir / 'intersectionality_combined.png', dpi=150, bbox_inches='tight',
                 facecolor='white', edgecolor='none')
     plt.close()
