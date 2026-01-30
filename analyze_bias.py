@@ -112,6 +112,94 @@ MODEL_COLORS = {
 MODEL_ORDER = ['gpt-4-turbo', 'gpt-5.1', 'claude-sonnet-4', 'claude-3.5-haiku', 'gemini-2.0-flash', 'gemini-2.5-flash']
 
 
+# =============================================================================
+# MODERN STYLING CONFIGURATION
+# =============================================================================
+
+def setup_modern_style():
+    """Configure matplotlib for modern, clean visualizations."""
+    if not HAS_MATPLOTLIB:
+        return
+
+    # Use a clean style base
+    plt.style.use('seaborn-v0_8-whitegrid')
+
+    # Custom color palette - modern, accessible colors
+    MODERN_COLORS = {
+        'primary': '#6366f1',      # Indigo
+        'secondary': '#8b5cf6',    # Purple
+        'success': '#10b981',      # Emerald
+        'warning': '#f59e0b',      # Amber
+        'danger': '#ef4444',       # Red
+        'info': '#3b82f6',         # Blue
+        'neutral': '#6b7280',      # Gray
+        'dark': '#1f2937',         # Dark gray
+        'light': '#f3f4f6',        # Light gray
+    }
+
+    # Set global rcParams for modern look
+    plt.rcParams.update({
+        # Font settings
+        'font.family': 'sans-serif',
+        'font.sans-serif': ['Inter', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        'font.size': 11,
+        'font.weight': 'normal',
+
+        # Title and labels
+        'axes.titlesize': 14,
+        'axes.titleweight': 'semibold',
+        'axes.labelsize': 11,
+        'axes.labelweight': 'medium',
+
+        # Tick labels
+        'xtick.labelsize': 10,
+        'ytick.labelsize': 10,
+
+        # Legend
+        'legend.fontsize': 10,
+        'legend.framealpha': 0.9,
+        'legend.edgecolor': '#e5e7eb',
+        'legend.fancybox': True,
+
+        # Figure
+        'figure.facecolor': 'white',
+        'figure.edgecolor': 'white',
+        'figure.titlesize': 16,
+        'figure.titleweight': 'bold',
+        'figure.dpi': 150,
+
+        # Axes
+        'axes.facecolor': 'white',
+        'axes.edgecolor': '#e5e7eb',
+        'axes.linewidth': 1,
+        'axes.grid': True,
+        'axes.spines.top': False,
+        'axes.spines.right': False,
+
+        # Grid
+        'grid.color': '#f3f4f6',
+        'grid.linewidth': 0.8,
+        'grid.alpha': 1.0,
+
+        # Lines and markers
+        'lines.linewidth': 2,
+        'lines.markersize': 8,
+
+        # Savefig
+        'savefig.bbox': 'tight',
+        'savefig.pad_inches': 0.2,
+        'savefig.facecolor': 'white',
+        'savefig.edgecolor': 'white',
+    })
+
+    return MODERN_COLORS
+
+# Modern colormaps for bias visualization
+MODERN_DIVERGING_CMAP = 'RdBu_r'  # Red-Blue, reversed so red = positive bias
+MODERN_SEQUENTIAL_CMAP = 'viridis'  # Modern, perceptually uniform
+MODERN_QUALITY_CMAP = 'YlGn'  # Yellow-Green for quality scores
+
+
 @dataclass
 class BiasMetrics:
     """Container for bias measurements."""
@@ -399,12 +487,13 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
                           significance_results: Dict = None):
     """Generate summary heatmaps for bias across all models and pipelines.
 
-    Adds bold borders around cells with statistically significant bias.
+    Uses 3x2 layout. Adds bold borders around cells with statistically significant bias.
     """
 
     if not HAS_MATPLOTLIB:
         return
 
+    setup_modern_style()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Build matrices
@@ -433,133 +522,99 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
     # Build significance lookup: {(model, pipeline, comparison): is_significant}
     sig_lookup = {}
     if significance_results:
-        for model, pipelines in significance_results.items():
+        for model_name, pipelines in significance_results.items():
             for pipeline, results in pipelines.items():
                 for result in results:
-                    key = (model, pipeline, result.comparison)
+                    key = (model_name, pipeline, result.comparison)
                     sig_lookup[key] = result.is_significant_05
 
-    def add_significance_border(ax, i, j, model, pipeline, comparison):
+    def add_significance_border(ax, i, j, model_name, pipeline, comparison):
         """Add bold border if result is significant."""
-        if sig_lookup.get((model, pipeline, comparison), False):
+        if sig_lookup.get((model_name, pipeline, comparison), False):
             rect = plt.Rectangle((j-0.5, i-0.5), 1, 1, fill=False,
-                                  edgecolor='black', linewidth=3)
+                                  edgecolor='#1f2937', linewidth=3.5)
             ax.add_patch(rect)
 
     def get_text_color(value, vmin, vmax, cmap_type='diverging'):
-        """Return white for dark backgrounds, black for light."""
+        """Return white for dark backgrounds, dark gray for light."""
         if cmap_type == 'diverging':
-            # For diverging colormaps, extreme values are dark
             normalized = abs(value - (vmin + vmax) / 2) / ((vmax - vmin) / 2)
-            return 'white' if normalized > 0.5 else 'black'
+            return 'white' if normalized > 0.5 else '#1f2937'
         else:
-            # For sequential colormaps
             normalized = (value - vmin) / (vmax - vmin) if vmax > vmin else 0
-            return 'white' if normalized > 0.6 else 'black'
+            return 'white' if normalized > 0.6 else '#1f2937'
 
-    # Create heatmaps (3x2 grid for 6 plots)
-    fig, axes = plt.subplots(3, 2, figsize=(14, 18))
-    fig.suptitle('Bias Analysis Summary Heatmaps\n(bold border = statistically significant, p<0.05)',
-                 fontsize=16, fontweight='bold')
+    # Create heatmaps (3x2 grid for 6 plots) - 3 rows, 2 columns
+    fig, axes = plt.subplots(3, 2, figsize=(14, 16))
 
-    pipeline_labels = [PIPELINE_LABELS[p] for p in PIPELINES]
+    # Modern title with subtitle
+    fig.suptitle('Bias Analysis Summary', fontsize=20, fontweight='bold', y=0.98)
+    subtitle = 'Bold border indicates statistical significance (p < 0.05)' if significance_results else 'Install scipy for significance testing'
+    fig.text(0.5, 0.95, subtitle, ha='center', fontsize=11, color='#6b7280', style='italic')
 
-    # W-B heatmap
-    im1 = axes[0, 0].imshow(w_b_matrix, cmap='RdYlGn_r', aspect='auto', vmin=-0.3, vmax=0.3)
-    axes[0, 0].set_title('White - Black Bias\n(red = favors white)')
-    axes[0, 0].set_yticks(range(n_models))
-    axes[0, 0].set_yticklabels(models)
-    axes[0, 0].set_xticks(range(n_pipelines))
-    axes[0, 0].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im1, ax=axes[0, 0])
+    # Shorter pipeline labels for better fit
+    pipeline_labels = ['1-Shot', 'CoT', 'Multi', 'Decomp']
 
+    # Modern diverging colormap
+    div_cmap = 'RdBu_r'
+
+    def style_heatmap(ax, matrix, title, cmap, vmin, vmax, comparison=None):
+        """Helper to create consistently styled heatmaps."""
+        im = ax.imshow(matrix, cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+        ax.set_title(title, fontsize=12, fontweight='semibold', pad=10)
+        ax.set_yticks(range(n_models))
+        ax.set_yticklabels(models, fontsize=10)
+        ax.set_xticks(range(n_pipelines))
+        ax.set_xticklabels(pipeline_labels, fontsize=10)
+
+        # Add colorbar with modern styling
+        cbar = plt.colorbar(im, ax=ax, shrink=0.8, aspect=20)
+        cbar.ax.tick_params(labelsize=9)
+
+        # Add values and significance borders
+        cmap_type = 'sequential' if vmin >= 0 else 'diverging'
+        for i in range(n_models):
+            for j in range(n_pipelines):
+                color = get_text_color(matrix[i,j], vmin, vmax, cmap_type)
+                ax.text(j, i, f'{matrix[i,j]:.2f}', ha='center', va='center',
+                       fontsize=9, color=color, fontweight='medium')
+                if comparison:
+                    add_significance_border(ax, i, j, models[i], PIPELINES[j], comparison)
+
+        return im
+
+    # Row 1: Race bias comparisons
+    style_heatmap(axes[0, 0], w_b_matrix, 'White − Black', div_cmap, -0.3, 0.3, 'W-B')
+    style_heatmap(axes[0, 1], w_a_matrix, 'White − Asian', div_cmap, -0.3, 0.3, 'W-A')
+
+    # Row 2: B-A and Gender bias
+    style_heatmap(axes[1, 0], b_a_matrix, 'Black − Asian', 'PuOr_r', -0.3, 0.3, 'B-A')
+    style_heatmap(axes[1, 1], m_f_matrix, 'Male − Female', 'PRGn_r', -0.3, 0.3, 'M-F')
+
+    # Row 3: Summary metrics
+    style_heatmap(axes[2, 0], total_matrix, 'Total Bias', 'YlOrRd', 0, 0.5)
+    im_qual = style_heatmap(axes[2, 1], quality_matrix, 'Quality Score', 'YlGn', 65, 100)
+    # Reformat quality values to integers
     for i in range(n_models):
         for j in range(n_pipelines):
-            color = get_text_color(w_b_matrix[i,j], -0.3, 0.3)
-            axes[0, 0].text(j, i, f'{w_b_matrix[i,j]:.2f}', ha='center', va='center',
-                           fontsize=8, color=color)
-            add_significance_border(axes[0, 0], i, j, models[i], PIPELINES[j], 'W-B')
-
-    # W-A heatmap
-    im2 = axes[0, 1].imshow(w_a_matrix, cmap='RdYlGn_r', aspect='auto', vmin=-0.3, vmax=0.3)
-    axes[0, 1].set_title('White - Asian Bias\n(red = favors white)')
-    axes[0, 1].set_yticks(range(n_models))
-    axes[0, 1].set_yticklabels(models)
-    axes[0, 1].set_xticks(range(n_pipelines))
-    axes[0, 1].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im2, ax=axes[0, 1])
-
-    for i in range(n_models):
-        for j in range(n_pipelines):
-            color = get_text_color(w_a_matrix[i,j], -0.3, 0.3)
-            axes[0, 1].text(j, i, f'{w_a_matrix[i,j]:.2f}', ha='center', va='center',
-                           fontsize=8, color=color)
-            add_significance_border(axes[0, 1], i, j, models[i], PIPELINES[j], 'W-A')
-
-    # B-A heatmap
-    im3 = axes[1, 0].imshow(b_a_matrix, cmap='BrBG_r', aspect='auto', vmin=-0.3, vmax=0.3)
-    axes[1, 0].set_title('Black - Asian Bias\n(brown = favors black)')
-    axes[1, 0].set_yticks(range(n_models))
-    axes[1, 0].set_yticklabels(models)
-    axes[1, 0].set_xticks(range(n_pipelines))
-    axes[1, 0].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im3, ax=axes[1, 0])
-
-    for i in range(n_models):
-        for j in range(n_pipelines):
-            color = get_text_color(b_a_matrix[i,j], -0.3, 0.3)
-            axes[1, 0].text(j, i, f'{b_a_matrix[i,j]:.2f}', ha='center', va='center',
-                           fontsize=8, color=color)
-            add_significance_border(axes[1, 0], i, j, models[i], PIPELINES[j], 'B-A')
-
-    # M-F heatmap
-    im4 = axes[1, 1].imshow(m_f_matrix, cmap='PuOr_r', aspect='auto', vmin=-0.3, vmax=0.3)
-    axes[1, 1].set_title('Male - Female Bias\n(purple = favors male)')
-    axes[1, 1].set_yticks(range(n_models))
-    axes[1, 1].set_yticklabels(models)
-    axes[1, 1].set_xticks(range(n_pipelines))
-    axes[1, 1].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im4, ax=axes[1, 1])
-
-    for i in range(n_models):
-        for j in range(n_pipelines):
-            color = get_text_color(m_f_matrix[i,j], -0.3, 0.3)
-            axes[1, 1].text(j, i, f'{m_f_matrix[i,j]:.2f}', ha='center', va='center',
-                           fontsize=8, color=color)
-            add_significance_border(axes[1, 1], i, j, models[i], PIPELINES[j], 'M-F')
-
-    # Total bias heatmap
-    im5 = axes[2, 0].imshow(total_matrix, cmap='Reds', aspect='auto', vmin=0, vmax=0.5)
-    axes[2, 0].set_title('Total Bias (normalized)\n(darker = more biased)')
-    axes[2, 0].set_yticks(range(n_models))
-    axes[2, 0].set_yticklabels(models)
-    axes[2, 0].set_xticks(range(n_pipelines))
-    axes[2, 0].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im5, ax=axes[2, 0])
-
-    for i in range(n_models):
-        for j in range(n_pipelines):
-            color = get_text_color(total_matrix[i,j], 0, 0.5, 'sequential')
-            axes[2, 0].text(j, i, f'{total_matrix[i,j]:.2f}', ha='center', va='center',
-                           fontsize=8, color=color)
-
-    # Quality score heatmap
-    im6 = axes[2, 1].imshow(quality_matrix, cmap='Greens', aspect='auto', vmin=65, vmax=100)
-    axes[2, 1].set_title('Quality Score\n(darker = better)')
-    axes[2, 1].set_yticks(range(n_models))
-    axes[2, 1].set_yticklabels(models)
-    axes[2, 1].set_xticks(range(n_pipelines))
-    axes[2, 1].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im6, ax=axes[2, 1])
-
+            color = get_text_color(quality_matrix[i,j], 65, 100, 'sequential')
+            axes[2, 1].texts[-1].set_visible(False) if axes[2, 1].texts else None
+    # Clear and re-add quality values as integers
+    for txt in axes[2, 1].texts:
+        txt.remove()
     for i in range(n_models):
         for j in range(n_pipelines):
             color = get_text_color(quality_matrix[i,j], 65, 100, 'sequential')
             axes[2, 1].text(j, i, f'{quality_matrix[i,j]:.0f}', ha='center', va='center',
-                           fontsize=8, color=color)
+                           fontsize=9, color=color, fontweight='medium')
 
-    plt.tight_layout()
-    plt.savefig(output_dir / 'summary_heatmaps.png', dpi=150, bbox_inches='tight')
+    # Add interpretation guide
+    fig.text(0.5, 0.01, 'Positive bias values favor the first group • Lower total bias & higher quality = better',
+             ha='center', fontsize=10, color='#6b7280', style='italic')
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.94])
+    plt.savefig(output_dir / 'summary_heatmaps.png', dpi=150, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
     plt.close()
 
     print(f"Saved summary heatmaps to {output_dir}")
@@ -568,58 +623,96 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
 def plot_bias_vs_quality(all_results: Dict[str, List[dict]],
                          cv_meta: Dict[str, dict],
                          output_dir: Path):
-    """Plot bias vs quality scatter to show trade-offs."""
+    """Plot bias vs quality scatter to show trade-offs with modern styling."""
 
     if not HAS_MATPLOTLIB:
         return
 
+    setup_modern_style()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(11, 8))
 
+    # Modern markers
     markers = {'one_shot': 'o', 'chain_of_thought': 's', 'multi_layer': '^', 'decomposed_algorithmic': 'D'}
+
+    # Updated model colors - more modern palette
+    modern_colors = {
+        'gpt-4-turbo': '#10b981',      # Emerald
+        'gpt-5.1': '#059669',           # Darker emerald
+        'claude-sonnet-4': '#f59e0b',   # Amber
+        'claude-3.5-haiku': '#d97706',  # Darker amber
+        'gemini-2.0-flash': '#6366f1',  # Indigo
+        'gemini-2.5-flash': '#4f46e5',  # Darker indigo
+    }
 
     for model in MODEL_ORDER:
         if model not in all_results:
             continue
 
         data = all_results[model]
-        color = MODEL_COLORS.get(model, '#888888')
+        color = modern_colors.get(model, '#6b7280')
 
         for pipeline in PIPELINES:
             bias, mae, quality = analyze_model_pipeline(data, cv_meta, pipeline)
 
             ax.scatter(bias.total_bias, mae,
-                      c=color, marker=markers[pipeline], s=150,
-                      edgecolors='black', linewidth=0.5,
-                      label=f'{model} - {PIPELINE_LABELS[pipeline]}' if pipeline == 'one_shot' else None)
+                      c=color, marker=markers[pipeline], s=180,
+                      edgecolors='white', linewidth=1.5, alpha=0.9,
+                      label=f'{model}' if pipeline == 'one_shot' else None)
 
-            # Add annotation
-            ax.annotate(f'{model[:3]}-{pipeline[:2]}',
+            # Cleaner annotation
+            short_name = model.split('-')[0][:3].upper()
+            ax.annotate(f'{short_name}',
                        (bias.total_bias, mae),
-                       textcoords="offset points", xytext=(5, 5), fontsize=6)
+                       textcoords="offset points", xytext=(6, 6),
+                       fontsize=7, fontweight='medium', color='#374151')
 
-    ax.set_xlabel('Total Bias (Race/3 + Gender, normalized)', fontsize=12)
-    ax.set_ylabel('Mean Absolute Error (MAE)', fontsize=12)
-    ax.set_title('Bias vs Accuracy Trade-off\n(Bottom-left = best)', fontsize=14, fontweight='bold')
+    ax.set_xlabel('Total Bias (normalized)', fontsize=12, fontweight='medium')
+    ax.set_ylabel('Mean Absolute Error', fontsize=12, fontweight='medium')
+    ax.set_title('Bias vs Accuracy Trade-off', fontsize=16, fontweight='bold', pad=15)
 
-    # Add quadrant labels
-    ax.axhline(y=0.5, color='gray', linestyle='--', alpha=0.3)
-    ax.axvline(x=0.2, color='gray', linestyle='--', alpha=0.3)
+    # Subtle quadrant indicators
+    ax.axhline(y=0.5, color='#d1d5db', linestyle='--', alpha=0.8, linewidth=1)
+    ax.axvline(x=0.15, color='#d1d5db', linestyle='--', alpha=0.8, linewidth=1)
 
-    ax.text(0.05, 0.2, 'Low Bias\nHigh Accuracy\n(IDEAL)', fontsize=9, alpha=0.5)
-    ax.text(0.35, 0.2, 'High Bias\nHigh Accuracy', fontsize=9, alpha=0.5)
-    ax.text(0.05, 0.8, 'Low Bias\nLow Accuracy', fontsize=9, alpha=0.5)
-    ax.text(0.35, 0.8, 'High Bias\nLow Accuracy\n(WORST)', fontsize=9, alpha=0.5)
+    # Modern quadrant labels
+    ax.text(0.02, 0.15, '✓ IDEAL\nLow bias, high accuracy',
+            fontsize=9, color='#10b981', fontweight='medium', alpha=0.8)
+    ax.text(0.30, 0.15, 'High bias,\nhigh accuracy',
+            fontsize=9, color='#6b7280', alpha=0.6)
+    ax.text(0.02, 0.85, 'Low bias,\nlow accuracy',
+            fontsize=9, color='#6b7280', alpha=0.6)
+    ax.text(0.30, 0.85, '✗ WORST\nHigh bias, low accuracy',
+            fontsize=9, color='#ef4444', fontweight='medium', alpha=0.8)
 
-    # Legend for markers
-    legend_elements = [plt.Line2D([0], [0], marker=m, color='w', markerfacecolor='gray',
-                                   markersize=10, label=PIPELINE_LABELS[p])
-                       for p, m in markers.items()]
-    ax.legend(handles=legend_elements, loc='upper right')
+    # Two legends - one for models (color), one for pipelines (shape)
+    # Pipeline legend
+    pipeline_elements = [plt.Line2D([0], [0], marker=m, color='w', markerfacecolor='#6b7280',
+                                     markersize=10, markeredgecolor='white', markeredgewidth=1,
+                                     label=PIPELINE_LABELS[p])
+                         for p, m in markers.items()]
+    leg1 = ax.legend(handles=pipeline_elements, loc='upper right', title='Pipeline',
+                     framealpha=0.95, edgecolor='#e5e7eb')
+    leg1.get_title().set_fontweight('semibold')
+
+    # Model color legend
+    model_elements = [plt.Line2D([0], [0], marker='o', color='w',
+                                  markerfacecolor=modern_colors.get(m, '#6b7280'),
+                                  markersize=10, markeredgecolor='white', markeredgewidth=1,
+                                  label=m)
+                      for m in MODEL_ORDER if m in all_results]
+    leg2 = ax.legend(handles=model_elements, loc='center right', title='Model',
+                     framealpha=0.95, edgecolor='#e5e7eb', bbox_to_anchor=(1.0, 0.35))
+    leg2.get_title().set_fontweight('semibold')
+    ax.add_artist(leg1)  # Add first legend back
+
+    ax.set_xlim(-0.02, None)
+    ax.set_ylim(0, None)
 
     plt.tight_layout()
-    plt.savefig(output_dir / 'bias_vs_quality_scatter.png', dpi=150, bbox_inches='tight')
+    plt.savefig(output_dir / 'bias_vs_quality_scatter.png', dpi=150, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
     plt.close()
 
     print(f"Saved bias vs quality scatter to {output_dir}")
@@ -1333,7 +1426,7 @@ def plot_consistency(all_results: Dict[str, List[dict]],
                      cv_meta: Dict[str, dict],
                      output_dir: Path):
     """
-    Plot consistency as standard deviation within CV sets.
+    Plot consistency as standard deviation within CV sets with modern styling.
 
     For each model+pipeline, calculates how consistently the model rates
     variants of the same base CV (i.e., do all demographic variants of CV1
@@ -1342,6 +1435,7 @@ def plot_consistency(all_results: Dict[str, List[dict]],
     if not HAS_MATPLOTLIB:
         return
 
+    setup_modern_style()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     models = [m for m in MODEL_ORDER if m in all_results]
@@ -1373,29 +1467,36 @@ def plot_consistency(all_results: Dict[str, List[dict]],
             # Average std dev across CV sets
             consistency_matrix[i, j] = np.mean(set_stds) if set_stds else 0
 
-    # Create heatmap
-    fig, ax = plt.subplots(figsize=(10, 8))
+    # Create heatmap with modern styling
+    fig, ax = plt.subplots(figsize=(10, 7))
 
-    im = ax.imshow(consistency_matrix, cmap='YlOrRd', aspect='auto', vmin=0, vmax=0.8)
+    # Modern colormap - inverted so green = good (consistent)
+    im = ax.imshow(consistency_matrix, cmap='RdYlGn_r', aspect='auto', vmin=0, vmax=0.8)
 
-    ax.set_title('Rating Consistency by Model and Pipeline\n(Std Dev within CV sets - lower = more consistent)',
-                 fontsize=14, fontweight='bold')
+    ax.set_title('Rating Consistency', fontsize=16, fontweight='bold', pad=15)
+    fig.text(0.5, 0.92, 'Standard deviation within CV sets (lower = more consistent)',
+             ha='center', fontsize=11, color='#6b7280', style='italic')
+
     ax.set_yticks(range(n_models))
-    ax.set_yticklabels(models)
+    ax.set_yticklabels(models, fontsize=11)
     ax.set_xticks(range(n_pipelines))
-    ax.set_xticklabels([PIPELINE_LABELS[p] for p in PIPELINES], rotation=45, ha='right')
+    ax.set_xticklabels(['1-Shot', 'CoT', 'Multi', 'Decomp'], fontsize=11)
 
-    plt.colorbar(im, ax=ax, label='Std Dev (lower = more consistent)')
+    cbar = plt.colorbar(im, ax=ax, shrink=0.8, aspect=25)
+    cbar.set_label('Std Dev', fontsize=11)
+    cbar.ax.tick_params(labelsize=10)
 
     # Add values with appropriate text color
     for i in range(n_models):
         for j in range(n_pipelines):
             val = consistency_matrix[i, j]
-            color = 'white' if val > 0.4 else 'black'
-            ax.text(j, i, f'{val:.2f}', ha='center', va='center', fontsize=10, color=color)
+            color = 'white' if val > 0.45 else '#1f2937'
+            ax.text(j, i, f'{val:.2f}', ha='center', va='center',
+                   fontsize=11, color=color, fontweight='medium')
 
-    plt.tight_layout()
-    plt.savefig(output_dir / 'consistency.png', dpi=150, bbox_inches='tight')
+    plt.tight_layout(rect=[0, 0, 1, 0.9])
+    plt.savefig(output_dir / 'consistency.png', dpi=150, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
     plt.close()
 
     print(f"Saved consistency plot to {output_dir}")
@@ -1407,26 +1508,30 @@ def plot_intersectionality_combined(all_results: Dict[str, List[dict]],
     """
     Create a single figure with all 6 models' intersectionality heatmaps.
     Shows mean ratings for each demographic group (race × gender) across all pipelines.
+    Uses 3x2 layout to avoid legend overlap.
     """
     if not HAS_MATPLOTLIB:
         return
 
+    setup_modern_style()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     models = [m for m in MODEL_ORDER if m in all_results]
 
-    # 2x3 grid for 6 models
-    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-    fig.suptitle('Intersectionality: Mean Ratings by Demographic Group\n(All Pipelines Combined)',
-                 fontsize=16, fontweight='bold')
+    # 3x2 grid for 6 models (3 rows, 2 columns) - better layout to avoid legend overlap
+    fig, axes = plt.subplots(3, 2, figsize=(14, 16))
+    fig.suptitle('Intersectionality Analysis\nMean Ratings by Demographic Group',
+                 fontsize=18, fontweight='bold', y=0.98)
 
     demo_groups = ['white_male', 'white_female', 'black_male', 'black_female',
                    'asian_male', 'asian_female', 'neutral']
-    demo_labels = ['White\nMale', 'White\nFemale', 'Black\nMale', 'Black\nFemale',
-                   'Asian\nMale', 'Asian\nFemale', 'Neutral']
+    demo_labels = ['W♂', 'W♀', 'B♂', 'B♀', 'A♂', 'A♀', 'N']
+
+    # Modern colormap
+    cmap = plt.cm.RdYlBu_r  # Modern diverging colormap
 
     for idx, model in enumerate(models):
-        ax = axes[idx // 3, idx % 3]
+        ax = axes[idx // 2, idx % 2]
         data = all_results[model]
 
         # Build matrix: pipelines × demographic groups
@@ -1452,25 +1557,35 @@ def plot_intersectionality_combined(all_results: Dict[str, List[dict]],
 
                 matrix[j, k] = np.mean(ratings) if ratings else 0
 
-        im = ax.imshow(matrix, cmap='RdYlGn', aspect='auto', vmin=1.5, vmax=3.5)
-        ax.set_title(model, fontsize=12, fontweight='bold')
+        im = ax.imshow(matrix, cmap=cmap, aspect='auto', vmin=1.5, vmax=3.5)
+        ax.set_title(model, fontsize=13, fontweight='semibold', pad=10)
         ax.set_yticks(range(len(PIPELINES)))
-        ax.set_yticklabels([PIPELINE_LABELS[p] for p in PIPELINES], fontsize=9)
+        ax.set_yticklabels([PIPELINE_LABELS[p] for p in PIPELINES], fontsize=10)
         ax.set_xticks(range(len(demo_groups)))
-        ax.set_xticklabels(demo_labels, fontsize=8)
+        ax.set_xticklabels(demo_labels, fontsize=10, fontweight='medium')
 
-        # Add values
+        # Add values with better contrast
         for j in range(len(PIPELINES)):
             for k in range(len(demo_groups)):
                 val = matrix[j, k]
-                color = 'white' if val < 2.0 or val > 3.0 else 'black'
-                ax.text(k, j, f'{val:.1f}', ha='center', va='center', fontsize=8, color=color)
+                # Better contrast logic
+                color = 'white' if val < 2.2 or val > 3.0 else '#1f2937'
+                ax.text(k, j, f'{val:.2f}', ha='center', va='center',
+                       fontsize=9, color=color, fontweight='medium')
 
-    # Add colorbar
-    fig.colorbar(im, ax=axes.ravel().tolist(), label='Mean Rating (1-4)', shrink=0.8)
+    # Add colorbar to the right of all plots - positioned outside
+    cbar = fig.colorbar(im, ax=axes.ravel().tolist(), label='Mean Rating',
+                        shrink=0.6, aspect=30, pad=0.02)
+    cbar.ax.tick_params(labelsize=10)
 
-    plt.tight_layout()
-    plt.savefig(output_dir / 'intersectionality_combined.png', dpi=150, bbox_inches='tight')
+    # Add legend for demographic codes
+    legend_text = 'W=White  B=Black  A=Asian  N=Neutral  ♂=Male  ♀=Female'
+    fig.text(0.5, 0.01, legend_text, ha='center', fontsize=10, color='#6b7280',
+             style='italic')
+
+    plt.tight_layout(rect=[0, 0.03, 0.95, 0.96])
+    plt.savefig(output_dir / 'intersectionality_combined.png', dpi=150, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
     plt.close()
 
     print(f"Saved combined intersectionality plot to {output_dir}")
@@ -1480,11 +1595,13 @@ def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
                                 cv_meta: Dict[str, dict],
                                 output_dir: Path):
     """
-    Create criteria bias heatmap by model with white fonts on dark backgrounds.
+    Create criteria bias heatmap by model with modern styling.
+    White fonts on dark backgrounds for readability.
     """
     if not HAS_MATPLOTLIB:
         return
 
+    setup_modern_style()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     criteria_by_model = analyze_criteria_bias(all_results, cv_meta)
@@ -1492,19 +1609,22 @@ def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
     n_models = len(models)
     n_criteria = len(CRITERIA_NAMES)
 
-    bias_types = [('w_b', 'White-Black', 'RdYlGn_r'),
-                  ('w_a', 'White-Asian', 'RdYlGn_r'),
-                  ('b_a', 'Black-Asian', 'BrBG_r'),
-                  ('m_f', 'Male-Female', 'PuOr_r')]
+    # Modern color schemes
+    bias_types = [('w_b', 'White − Black', 'RdBu_r'),
+                  ('w_a', 'White − Asian', 'RdBu_r'),
+                  ('b_a', 'Black − Asian', 'PuOr_r'),
+                  ('m_f', 'Male − Female', 'PRGn_r')]
 
-    fig, axes = plt.subplots(1, 4, figsize=(20, 6))
-    fig.suptitle('Criteria-Level Bias by Model (Decomposed Algorithmic Pipeline)',
-                 fontsize=14, fontweight='bold')
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    fig.suptitle('Criteria-Level Bias Analysis', fontsize=18, fontweight='bold', y=0.98)
+    fig.text(0.5, 0.94, 'Decomposed Algorithmic Pipeline • Positive = favors first group',
+             ha='center', fontsize=11, color='#6b7280', style='italic')
 
-    criteria_labels = [CRITERIA_LABELS[c] for c in CRITERIA_NAMES]
+    # Shorter criteria labels
+    criteria_labels = ['Zero-to-One', 'Tech T-Shape', 'Recruitment']
 
     for ax_idx, (bias_key, bias_label, cmap) in enumerate(bias_types):
-        ax = axes[ax_idx]
+        ax = axes[ax_idx // 2, ax_idx % 2]
 
         matrix = np.zeros((n_models, n_criteria))
         for i, model in enumerate(models):
@@ -1513,26 +1633,30 @@ def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
                     bias = calculate_criteria_bias_metrics(criteria_by_model[model][criteria])
                     matrix[i, j] = bias[bias_key]
 
-        im = ax.imshow(matrix, cmap=cmap, aspect='auto', vmin=-0.3, vmax=0.3)
+        im = ax.imshow(matrix, cmap=cmap, aspect='auto', vmin=-0.35, vmax=0.35)
 
-        ax.set_title(f'{bias_label}')
+        ax.set_title(bias_label, fontsize=13, fontweight='semibold', pad=10)
         ax.set_yticks(range(n_models))
-        ax.set_yticklabels(models)
+        ax.set_yticklabels(models, fontsize=10)
         ax.set_xticks(range(n_criteria))
-        ax.set_xticklabels(criteria_labels, rotation=45, ha='right')
-        plt.colorbar(im, ax=ax)
+        ax.set_xticklabels(criteria_labels, fontsize=10)
+
+        cbar = plt.colorbar(im, ax=ax, shrink=0.8, aspect=20)
+        cbar.ax.tick_params(labelsize=9)
 
         # Add values with white text on dark backgrounds
         for i in range(n_models):
             for j in range(n_criteria):
                 val = matrix[i, j]
-                # For diverging colormaps, extreme values are dark
-                color = 'white' if abs(val) > 0.15 else 'black'
-                ax.text(j, i, f'{val:.2f}', ha='center', va='center', fontsize=9,
-                       color=color, fontweight='bold' if abs(val) > 0.15 else 'normal')
+                # Better contrast calculation
+                color = 'white' if abs(val) > 0.12 else '#1f2937'
+                fontweight = 'bold' if abs(val) > 0.15 else 'medium'
+                ax.text(j, i, f'{val:+.2f}', ha='center', va='center', fontsize=10,
+                       color=color, fontweight=fontweight)
 
-    plt.tight_layout()
-    plt.savefig(output_dir / 'criteria_bias_heatmap.png', dpi=150, bbox_inches='tight')
+    plt.tight_layout(rect=[0, 0, 1, 0.92])
+    plt.savefig(output_dir / 'criteria_bias_heatmap.png', dpi=150, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
     plt.close()
 
     print(f"Saved criteria bias heatmap to {output_dir}")
@@ -1543,11 +1667,12 @@ def plot_anonymized_quality_heatmap(all_results: Dict[str, List[dict]],
                                      output_dir: Path):
     """
     Create heatmap comparing quality scores for anonymized vs non-anonymized CVs.
-    Shows actual quality scores (not difference).
+    Shows actual quality scores (not difference) with modern styling.
     """
     if not HAS_MATPLOTLIB:
         return
 
+    setup_modern_style()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     models = [m for m in MODEL_ORDER if m in all_results]
@@ -1563,8 +1688,6 @@ def plot_anonymized_quality_heatmap(all_results: Dict[str, List[dict]],
         for j, pipeline in enumerate(PIPELINES):
             pipeline_results = [r for r in data if r['pipeline'] == pipeline]
 
-            anon_ratings = []
-            ident_ratings = []
             anon_errors = []
             ident_errors = []
 
@@ -1579,10 +1702,8 @@ def plot_anonymized_quality_heatmap(all_results: Dict[str, List[dict]],
                         error = abs(rating - ground_truth)
 
                         if meta['race'] == 'neutral':
-                            anon_ratings.append(rating)
                             anon_errors.append(error)
                         else:
-                            ident_ratings.append(rating)
                             ident_errors.append(error)
 
             # Calculate quality score: 100 - MAE*20
@@ -1591,45 +1712,54 @@ def plot_anonymized_quality_heatmap(all_results: Dict[str, List[dict]],
             anon_quality[i, j] = 100 - anon_mae * 20
             ident_quality[i, j] = 100 - ident_mae * 20
 
-    # Create side-by-side heatmaps
-    fig, axes = plt.subplots(1, 2, figsize=(16, 8))
-    fig.suptitle('Quality Scores: Anonymized vs Identified CVs\n(Higher = Better Accuracy)',
-                 fontsize=14, fontweight='bold')
+    # Create side-by-side heatmaps with modern styling
+    fig, axes = plt.subplots(1, 2, figsize=(14, 7))
+    fig.suptitle('Quality Score Comparison', fontsize=18, fontweight='bold', y=0.98)
+    fig.text(0.5, 0.93, 'Anonymized (neutral names) vs Identified (demographic names) • Higher = better accuracy',
+             ha='center', fontsize=11, color='#6b7280', style='italic')
 
-    pipeline_labels = [PIPELINE_LABELS[p] for p in PIPELINES]
+    pipeline_labels = ['1-Shot', 'CoT', 'Multi', 'Decomp']
+
+    # Modern green colormap
+    cmap = 'YlGn'
 
     # Anonymized quality
-    im1 = axes[0].imshow(anon_quality, cmap='Greens', aspect='auto', vmin=65, vmax=100)
-    axes[0].set_title('Anonymized CVs\n(neutral names)', fontsize=12)
+    im1 = axes[0].imshow(anon_quality, cmap=cmap, aspect='auto', vmin=65, vmax=100)
+    axes[0].set_title('Anonymized', fontsize=14, fontweight='semibold', pad=10)
     axes[0].set_yticks(range(n_models))
-    axes[0].set_yticklabels(models)
+    axes[0].set_yticklabels(models, fontsize=11)
     axes[0].set_xticks(range(n_pipelines))
-    axes[0].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im1, ax=axes[0], label='Quality Score')
+    axes[0].set_xticklabels(pipeline_labels, fontsize=11)
+    cbar1 = plt.colorbar(im1, ax=axes[0], shrink=0.8, aspect=20)
+    cbar1.ax.tick_params(labelsize=9)
 
     for i in range(n_models):
         for j in range(n_pipelines):
             val = anon_quality[i, j]
-            color = 'white' if val > 85 else 'black'
-            axes[0].text(j, i, f'{val:.0f}', ha='center', va='center', fontsize=10, color=color)
+            color = 'white' if val > 82 else '#1f2937'
+            axes[0].text(j, i, f'{val:.0f}', ha='center', va='center',
+                        fontsize=11, color=color, fontweight='medium')
 
     # Identified quality
-    im2 = axes[1].imshow(ident_quality, cmap='Greens', aspect='auto', vmin=65, vmax=100)
-    axes[1].set_title('Identified CVs\n(demographic names)', fontsize=12)
+    im2 = axes[1].imshow(ident_quality, cmap=cmap, aspect='auto', vmin=65, vmax=100)
+    axes[1].set_title('Identified', fontsize=14, fontweight='semibold', pad=10)
     axes[1].set_yticks(range(n_models))
-    axes[1].set_yticklabels(models)
+    axes[1].set_yticklabels(models, fontsize=11)
     axes[1].set_xticks(range(n_pipelines))
-    axes[1].set_xticklabels(pipeline_labels, rotation=45, ha='right')
-    plt.colorbar(im2, ax=axes[1], label='Quality Score')
+    axes[1].set_xticklabels(pipeline_labels, fontsize=11)
+    cbar2 = plt.colorbar(im2, ax=axes[1], shrink=0.8, aspect=20)
+    cbar2.ax.tick_params(labelsize=9)
 
     for i in range(n_models):
         for j in range(n_pipelines):
             val = ident_quality[i, j]
-            color = 'white' if val > 85 else 'black'
-            axes[1].text(j, i, f'{val:.0f}', ha='center', va='center', fontsize=10, color=color)
+            color = 'white' if val > 82 else '#1f2937'
+            axes[1].text(j, i, f'{val:.0f}', ha='center', va='center',
+                        fontsize=11, color=color, fontweight='medium')
 
-    plt.tight_layout()
-    plt.savefig(output_dir / 'anonymized_quality_heatmap.png', dpi=150, bbox_inches='tight')
+    plt.tight_layout(rect=[0, 0, 1, 0.91])
+    plt.savefig(output_dir / 'anonymized_quality_heatmap.png', dpi=150, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
     plt.close()
 
     print(f"Saved anonymized quality heatmap to {output_dir}")
