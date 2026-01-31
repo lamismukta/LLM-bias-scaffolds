@@ -330,6 +330,48 @@ def calculate_bias_metrics(ratings_by_demo: Dict[str, List[float]],
     )
 
 
+def get_rating_distributions(data: List[dict], cv_meta: Dict[str, dict],
+                              pipeline: str) -> Dict[str, List[float]]:
+    """
+    Get rating distributions for each demographic group for a given pipeline.
+
+    Returns:
+        Dictionary mapping demographic keys to lists of ratings:
+        - 'white', 'black', 'asian' (aggregated race)
+        - 'male', 'female' (aggregated gender)
+        - 'white_male', 'white_female', etc. (intersectional)
+        - 'neutral' (anonymized CVs)
+    """
+    distributions = defaultdict(list)
+
+    for result in data:
+        if result['pipeline'] != pipeline:
+            continue
+
+        for ranking in result.get('rankings', []):
+            cv_id = ranking.get('cv_id')
+            rating = ranking.get('ranking', 0)
+
+            if cv_id not in cv_meta or rating <= 0:
+                continue
+
+            meta = cv_meta[cv_id]
+            race = meta['race']
+            gender = meta['gender']
+
+            if race == 'neutral':
+                distributions['neutral'].append(rating)
+            else:
+                # Add to race groups
+                distributions[race].append(rating)
+                # Add to gender groups
+                distributions[gender].append(rating)
+                # Add to intersectional group
+                distributions[f'{race}_{gender}'].append(rating)
+
+    return dict(distributions)
+
+
 def analyze_model_pipeline(data: List[dict], cv_meta: Dict[str, dict],
                            pipeline: str) -> Tuple[BiasMetrics, float, float]:
     """Analyze bias and quality for a specific model+pipeline combination."""
@@ -545,12 +587,12 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
             return 'white' if normalized > 0.6 else '#1f2937'
 
     # Create heatmaps (3x2 grid for 6 plots) - 3 rows, 2 columns
-    fig, axes = plt.subplots(3, 2, figsize=(14, 16))
+    fig, axes = plt.subplots(3, 2, figsize=(14, 18))
 
     # Modern title with subtitle
     fig.suptitle('Bias Analysis Summary', fontsize=20, fontweight='bold', y=0.98)
-    subtitle = 'Bold border indicates statistical significance (p < 0.05)' if significance_results else 'Install scipy for significance testing'
-    fig.text(0.5, 0.95, subtitle, ha='center', fontsize=11, color='#6b7280', style='italic')
+    subtitle = 'Bold border = statistically significant (p < 0.05)' if significance_results else ''
+    fig.text(0.5, 0.96, subtitle, ha='center', fontsize=11, color='#1f2937', fontweight='medium')
 
     # Shorter pipeline labels for better fit
     pipeline_labels = ['1-Shot', 'CoT', 'Multi', 'Decomp']
@@ -558,10 +600,11 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
     # Modern diverging colormap
     div_cmap = 'RdBu_r'
 
-    def style_heatmap(ax, matrix, title, cmap, vmin, vmax, comparison=None):
-        """Helper to create consistently styled heatmaps."""
+    def style_heatmap(ax, matrix, title, subtitle, cmap, vmin, vmax, comparison=None):
+        """Helper to create consistently styled heatmaps with subtitle."""
         im = ax.imshow(matrix, cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-        ax.set_title(title, fontsize=12, fontweight='semibold', pad=10)
+        ax.set_title(f'{title}\n{subtitle}', fontsize=11, fontweight='semibold', pad=8,
+                    linespacing=1.3)
         ax.set_yticks(range(n_models))
         ax.set_yticklabels(models, fontsize=10)
         ax.set_xticks(range(n_pipelines))
@@ -584,22 +627,36 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
         return im
 
     # Row 1: Race bias comparisons
-    style_heatmap(axes[0, 0], w_b_matrix, 'White − Black', div_cmap, -0.3, 0.3, 'W-B')
-    style_heatmap(axes[0, 1], w_a_matrix, 'White − Asian', div_cmap, -0.3, 0.3, 'W-A')
+    style_heatmap(axes[0, 0], w_b_matrix,
+                  'White − Black',
+                  'Red = favors White, Blue = favors Black',
+                  div_cmap, -0.3, 0.3, 'W-B')
+    style_heatmap(axes[0, 1], w_a_matrix,
+                  'White − Asian',
+                  'Red = favors White, Blue = favors Asian',
+                  div_cmap, -0.3, 0.3, 'W-A')
 
     # Row 2: B-A and Gender bias
-    style_heatmap(axes[1, 0], b_a_matrix, 'Black − Asian', 'PuOr_r', -0.3, 0.3, 'B-A')
-    style_heatmap(axes[1, 1], m_f_matrix, 'Male − Female', 'PRGn_r', -0.3, 0.3, 'M-F')
+    style_heatmap(axes[1, 0], b_a_matrix,
+                  'Black − Asian',
+                  'Orange = favors Black, Purple = favors Asian',
+                  'PuOr_r', -0.3, 0.3, 'B-A')
+    style_heatmap(axes[1, 1], m_f_matrix,
+                  'Male − Female',
+                  'Green = favors Male, Purple = favors Female',
+                  'PRGn_r', -0.3, 0.3, 'M-F')
 
     # Row 3: Summary metrics
-    style_heatmap(axes[2, 0], total_matrix, 'Total Bias', 'YlOrRd', 0, 0.5)
-    im_qual = style_heatmap(axes[2, 1], quality_matrix, 'Quality Score', 'YlGn', 65, 100)
+    style_heatmap(axes[2, 0], total_matrix,
+                  'Total Bias',
+                  'Darker = more biased (lower is better)',
+                  'YlOrRd', 0, 0.5, None)
+    style_heatmap(axes[2, 1], quality_matrix,
+                  'Quality Score',
+                  'Darker = higher quality (higher is better)',
+                  'YlGn', 65, 100, None)
+
     # Reformat quality values to integers
-    for i in range(n_models):
-        for j in range(n_pipelines):
-            color = get_text_color(quality_matrix[i,j], 65, 100, 'sequential')
-            axes[2, 1].texts[-1].set_visible(False) if axes[2, 1].texts else None
-    # Clear and re-add quality values as integers
     for txt in axes[2, 1].texts:
         txt.remove()
     for i in range(n_models):
@@ -608,11 +665,7 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
             axes[2, 1].text(j, i, f'{quality_matrix[i,j]:.0f}', ha='center', va='center',
                            fontsize=9, color=color, fontweight='medium')
 
-    # Add interpretation guide
-    fig.text(0.5, 0.01, 'Positive bias values favor the first group • Lower total bias & higher quality = better',
-             ha='center', fontsize=10, color='#6b7280', style='italic')
-
-    plt.tight_layout(rect=[0, 0.03, 1, 0.94])
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.savefig(output_dir / 'summary_heatmaps.png', dpi=150, bbox_inches='tight',
                 facecolor='white', edgecolor='none')
     plt.close()
