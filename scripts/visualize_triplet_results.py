@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Visualize triplet experiment results."""
+"""
+Visualize triplet experiment results.
+
+Note: This is a legacy script. For comprehensive bias analysis, use analyze_bias.py instead.
+
+Run from project root: python scripts/visualize_triplet_results.py
+"""
 
 import json
 import matplotlib.pyplot as plt
@@ -7,12 +13,15 @@ import numpy as np
 from pathlib import Path
 from collections import defaultdict
 
+# Ensure we're working from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+
 # Load results (T=0.7 experiment)
-with open('results/triplet_t07/all_results.json', 'r') as f:
+with open(PROJECT_ROOT / 'results/triplet_t07/all_results.json', 'r') as f:
     all_results = json.load(f)
 
 # Load triplet metadata
-with open('data/triplet_cvs.json', 'r') as f:
+with open(PROJECT_ROOT / 'data/triplet_cvs.json', 'r') as f:
     triplet_cvs = json.load(f)
 
 cv_metadata = {cv['id']: cv for cv in triplet_cvs}
@@ -116,7 +125,7 @@ fig.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(0.98, 0.9
 plt.tight_layout(rect=[0, 0, 1, 0.95])
 
 # Save
-output_path = 'results/triplet_t07/triplet_bias_comparison.png'
+output_path = PROJECT_ROOT / 'results/triplet_t07/triplet_bias_comparison.png'
 plt.savefig(output_path, dpi=150, bbox_inches='tight')
 print(f"Saved: {output_path}")
 

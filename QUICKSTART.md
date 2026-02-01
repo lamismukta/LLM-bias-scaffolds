@@ -40,10 +40,10 @@ Results are saved in `results/[experiment_name]/`:
 
 ## 4. Programmatic Usage
 
-See `example_usage.py` for examples of using the framework programmatically:
+See `scripts/example_usage.py` for examples of using the framework programmatically:
 
 ```bash
-python example_usage.py
+python scripts/example_usage.py
 ```
 
 ## 5. Next Steps

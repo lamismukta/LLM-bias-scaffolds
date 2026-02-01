@@ -23,8 +23,11 @@ import json
 import re
 from pathlib import Path
 
+# Ensure we're working from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+
 # Load original CVs
-with open('data/cvs_revised_v2.json', 'r') as f:
+with open(PROJECT_ROOT / 'data/cvs_revised_v2.json', 'r') as f:
     all_cvs = json.load(f)
 
 # CV lookup by original ID
@@ -241,7 +244,7 @@ if __name__ == "__main__":
     variants = create_all_variants()
 
     # Save variants
-    output_path = Path('data/cv_variants.json')
+    output_path = PROJECT_ROOT / 'data/cv_variants.json'
     with open(output_path, 'w') as f:
         json.dump(variants, f, indent=2)
 

@@ -77,7 +77,7 @@ Note: Only set keys for providers you intend to use.
 
 5. **Prepare CV data** (first time only):
 ```bash
-python sanitize_cvs.py
+python scripts/sanitize_cvs.py
 ```
 
 ## Usage
@@ -143,9 +143,13 @@ Figures are saved to `figures/`:
 .
 ├── analyze_bias.py           # Main bias analysis script
 ├── run_analysis.py           # Experiment runner
-├── sanitize_cvs.py           # CV data preparation
 ├── config.yaml               # Configuration settings
 ├── requirements.txt          # Python dependencies
+├── scripts/
+│   ├── sanitize_cvs.py       # CV data preparation
+│   ├── create_triplet_cvs.py # Generate demographic CV variants
+│   ├── run_triplet_experiment.py  # Run bias experiments
+│   └── example_usage.py      # Programmatic usage examples
 ├── data/
 │   ├── cv_variants.json      # CV metadata (demographics)
 │   ├── cvs_sanitized.json    # Processed CV content

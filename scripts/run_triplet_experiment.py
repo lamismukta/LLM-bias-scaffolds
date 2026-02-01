@@ -22,7 +22,9 @@ from datetime import datetime
 from typing import Dict, List, Any
 from collections import defaultdict
 
-sys.path.insert(0, str(Path(__file__).parent))
+# Ensure we're working from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -125,7 +127,7 @@ async def main():
         config = yaml.safe_load(f)
 
     # Load CV variants
-    with open('data/cv_variants.json', 'r') as f:
+    with open(PROJECT_ROOT / 'data/cv_variants.json', 'r') as f:
         cv_data = json.load(f)
 
     # Load job data
@@ -218,7 +220,7 @@ def analyze_results(results_path: Path):
         all_results = json.load(f)
 
     # Load CV metadata
-    with open('data/cv_variants.json', 'r') as f:
+    with open(PROJECT_ROOT / 'data/cv_variants.json', 'r') as f:
         cv_variants = json.load(f)
 
     cv_metadata = {cv['id']: cv for cv in cv_variants}

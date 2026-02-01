@@ -197,7 +197,7 @@ async def main():
     # Check if sanitized CVs exist
     if not Path(args.data).exists():
         print(f"Error: {args.data} not found.")
-        print("Please run sanitize_cvs.py first to create sanitized CV data.")
+        print("Please run scripts/sanitize_cvs.py first to create sanitized CV data.")
         sys.exit(1)
     
     # Load configuration

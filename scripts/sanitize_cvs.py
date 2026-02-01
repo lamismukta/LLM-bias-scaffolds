@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
-"""Sanitize CV data by randomizing IDs and order."""
+"""
+Sanitize CV data by randomizing IDs and order.
+
+Run from project root: python scripts/sanitize_cvs.py
+"""
 import json
 import random
 import string
 from pathlib import Path
+
+# Ensure we're working from project root
+PROJECT_ROOT = Path(__file__).parent.parent
 
 
 def generate_random_id(length=8):
@@ -59,9 +66,9 @@ def sanitize_cvs(input_path: str, output_path: str, mapping_path: str):
 
 
 if __name__ == "__main__":
-    input_path = "data/cvs_revised_v2.json"
-    output_path = "data/cvs_sanitized.json"
-    mapping_path = "data/cv_id_mapping.json"
-    
-    sanitize_cvs(input_path, output_path, mapping_path)
+    input_path = PROJECT_ROOT / "data/cvs_revised_v2.json"
+    output_path = PROJECT_ROOT / "data/cvs_sanitized.json"
+    mapping_path = PROJECT_ROOT / "data/cv_id_mapping.json"
+
+    sanitize_cvs(str(input_path), str(output_path), str(mapping_path))
 

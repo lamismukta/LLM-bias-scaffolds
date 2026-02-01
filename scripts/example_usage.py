@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
-"""Example script showing how to use the pipeline framework programmatically."""
+"""
+Example script showing how to use the pipeline framework programmatically.
+
+Run from project root: python scripts/example_usage.py
+"""
 import asyncio
 import json
 import os
+import sys
 from pathlib import Path
+
+# Ensure we're working from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from dotenv import load_dotenv
 
 from src.providers.openai_provider import OpenAIProvider
@@ -18,7 +28,7 @@ async def example_single_cv():
     load_dotenv()
     
     # Load CV data
-    with open("data/cvs_revised_v2.json", 'r') as f:
+    with open(PROJECT_ROOT / "data/cvs_revised_v2.json", 'r') as f:
         cvs = json.load(f)
     
     # Get first CV
@@ -46,7 +56,7 @@ async def example_compare_pipelines():
     load_dotenv()
     
     # Load CV data
-    with open("data/cvs_revised_v2.json", 'r') as f:
+    with open(PROJECT_ROOT / "data/cvs_revised_v2.json", 'r') as f:
         cvs = json.load(f)
     
     cv = cvs[0]
@@ -82,7 +92,7 @@ async def example_custom_experiment():
     load_dotenv()
     
     # Load CV data
-    with open("data/cvs_revised_v2.json", 'r') as f:
+    with open(PROJECT_ROOT / "data/cvs_revised_v2.json", 'r') as f:
         cvs = json.load(f)
     
     # Test on first 3 CVs
