@@ -27,7 +27,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent
 
 # Load original CVs
-with open(PROJECT_ROOT / 'data/cvs_revised_v2.json', 'r') as f:
+with open(PROJECT_ROOT / 'data/base_cvs.json', 'r') as f:
     all_cvs = json.load(f)
 
 # CV lookup by original ID

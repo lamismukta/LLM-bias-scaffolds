@@ -28,7 +28,7 @@ async def example_single_cv():
     load_dotenv()
     
     # Load CV data
-    with open(PROJECT_ROOT / "data/cvs_revised_v2.json", 'r') as f:
+    with open(PROJECT_ROOT / "data/base_cvs.json", 'r') as f:
         cvs = json.load(f)
     
     # Get first CV
@@ -56,7 +56,7 @@ async def example_compare_pipelines():
     load_dotenv()
     
     # Load CV data
-    with open(PROJECT_ROOT / "data/cvs_revised_v2.json", 'r') as f:
+    with open(PROJECT_ROOT / "data/base_cvs.json", 'r') as f:
         cvs = json.load(f)
     
     cv = cvs[0]
@@ -92,7 +92,7 @@ async def example_custom_experiment():
     load_dotenv()
     
     # Load CV data
-    with open(PROJECT_ROOT / "data/cvs_revised_v2.json", 'r') as f:
+    with open(PROJECT_ROOT / "data/base_cvs.json", 'r') as f:
         cvs = json.load(f)
     
     # Test on first 3 CVs

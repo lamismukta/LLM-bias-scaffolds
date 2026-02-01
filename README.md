@@ -75,38 +75,21 @@ ANTHROPIC_API_KEY=your_anthropic_api_key
 ```
 Note: Only set keys for providers you intend to use.
 
-5. **Prepare CV data** (first time only):
-```bash
-python scripts/sanitize_cvs.py
-```
-
 ## Usage
 
-### Running Experiments
+### Running Bias Experiments
 
-**Run full experiment** (all models, all pipelines):
+Run bias experiments using demographic CV variants:
 ```bash
-python run_analysis.py
+python scripts/run_triplet_experiment.py --provider openai --model gpt-4-turbo
 ```
 
-**Run specific models**:
+**Options**:
 ```bash
-python run_analysis.py --models gpt-4-turbo claude-sonnet-4
-```
-
-**Run specific pipelines**:
-```bash
-python run_analysis.py --pipelines one_shot chain_of_thought
-```
-
-**Quick test** (subset of CVs):
-```bash
-python run_analysis.py --quick-test
-```
-
-**Custom experiment name**:
-```bash
-python run_analysis.py --experiment-name my_experiment
+--provider    # openai, anthropic, or gemini
+--model       # Model name (e.g., gpt-4-turbo, claude-sonnet-4)
+--iterations  # Number of iterations (default: 10)
+--output      # Output directory
 ```
 
 ### Analyzing Results
@@ -125,7 +108,7 @@ python analyze_bias.py --methodology       # Print methodology details
 
 ### Output Files
 
-Results are saved to `results/<experiment_name>/`:
+Results are saved to `results/<model_name>/`:
 - `all_results.json` - Raw ratings data
 - `analysis_summary.json` - Computed bias metrics
 
@@ -142,18 +125,17 @@ Figures are saved to `figures/`:
 ```
 .
 ├── analyze_bias.py           # Main bias analysis script
-├── run_analysis.py           # Experiment runner
 ├── config.yaml               # Configuration settings
 ├── requirements.txt          # Python dependencies
 ├── scripts/
-│   ├── sanitize_cvs.py       # CV data preparation
 │   ├── create_triplet_cvs.py # Generate demographic CV variants
 │   ├── run_triplet_experiment.py  # Run bias experiments
 │   └── example_usage.py      # Programmatic usage examples
 ├── data/
-│   ├── cv_variants.json      # CV metadata (demographics)
-│   ├── cvs_sanitized.json    # Processed CV content
-│   └── job_ad.txt            # Job description for evaluation
+│   ├── cv_variants.json      # 21 demographic CV variants (main experiment data)
+│   ├── base_cvs.json         # 3 base CVs (A1, C1, D1) used to generate variants
+│   ├── category_guidance.json # Evaluation criteria definitions
+│   └── jobAd.py              # Job description for evaluation
 ├── src/
 │   ├── providers/            # LLM provider implementations
 │   │   ├── base.py           # Abstract base class
@@ -167,7 +149,7 @@ Figures are saved to `figures/`:
 │   │   ├── multi_layer.py
 │   │   └── decomposed_algorithmic.py
 │   └── comparison.py         # Result comparison utilities
-├── results/                  # Experiment outputs (generated)
+├── results/                  # Experiment outputs
 └── figures/                  # Visualizations (generated)
 ```
 

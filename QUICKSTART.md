@@ -6,39 +6,60 @@
 # Install dependencies
 pip install -r requirements.txt
 
-# Create .env file with your OpenAI API key
+# Create .env file with your API keys
 echo "OPENAI_API_KEY=your_key_here" > .env
+echo "ANTHROPIC_API_KEY=your_key_here" >> .env
+echo "GEMINI_API_KEY=your_key_here" >> .env
 ```
 
-## 2. Run Your First Experiment
+Note: Only set keys for providers you intend to use.
 
-### Quick Test (5 CVs, all pipelines, default models)
+## 2. Run Bias Experiment
+
+The main experiment tests demographic bias using CV variants with identical qualifications but different names signaling race/gender.
+
 ```bash
-python run_analysis.py --quick-test
+# Run with default settings (10 iterations, GPT-4-turbo)
+python scripts/run_triplet_experiment.py --provider openai --model gpt-4-turbo
+
+# Custom iterations
+python scripts/run_triplet_experiment.py --provider openai --model gpt-4-turbo --iterations 5
+
+# Test with different providers
+python scripts/run_triplet_experiment.py --provider anthropic --model claude-sonnet-4
+python scripts/run_triplet_experiment.py --provider gemini --model gemini-2.0-flash
 ```
 
-### Full Experiment
+## 3. Analyze Results
+
+After running experiments, generate visualizations and statistics:
+
 ```bash
-python run_analysis.py
+python analyze_bias.py
 ```
 
-### Custom Experiment
+Options:
 ```bash
-# Test one pipeline on specific CVs
-python run_analysis.py --pipelines one_shot --cv-ids A1 A2 --experiment-name test_one_shot
-
-# Compare two models
-python run_analysis.py --models gpt-4o-mini gpt-4o --pipelines one_shot chain_of_thought
+python analyze_bias.py --no-plots          # Text analysis only
+python analyze_bias.py --output ./my_figs  # Custom output directory
+python analyze_bias.py --methodology       # Print methodology details
 ```
 
-## 3. View Results
+## 4. View Results
 
-Results are saved in `results/[experiment_name]/`:
-- `comparison.csv` - Easy to open in Excel/Pandas
-- `summary.json` - Experiment overview
-- Individual JSON files for each CV/pipeline/model combination
+Results are saved in `results/<model_name>/`:
+- `all_results.json` - Raw ratings data
+- `analysis_summary.json` - Computed bias metrics
 
-## 4. Programmatic Usage
+Figures are saved to `figures/`:
+- `bias_heatmaps.png` - Bias comparisons across models/pipelines
+- `quality_consistency.png` - Quality scores and rating consistency
+- `criteria_bias_heatmap.png` - Criteria-level bias analysis
+- `intersectionality_combined.png` - Ratings by demographic group
+- `anonymized_quality_heatmap.png` - Anonymized vs identified CV quality
+- `bias_vs_quality_scatter.png` - Bias-accuracy trade-off
+
+## 5. Programmatic Usage
 
 See `scripts/example_usage.py` for examples of using the framework programmatically:
 
@@ -46,10 +67,10 @@ See `scripts/example_usage.py` for examples of using the framework programmatica
 python scripts/example_usage.py
 ```
 
-## 5. Next Steps
+## 6. Next Steps
 
 - Modify prompts in `src/pipelines/*.py` to customize analysis
 - Add new LLM providers in `src/providers/`
 - Create new pipeline strategies in `src/pipelines/`
 - Adjust settings in `config.yaml`
-
+- Edit `data/cv_variants.json` to customize demographic variants
