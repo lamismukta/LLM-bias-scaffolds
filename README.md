@@ -1,198 +1,250 @@
-# LLM CV Analysis Pipeline
+# LLM Bias Analysis Framework
 
-A modular framework for comparing different LLM models and analysis strategies when evaluating CVs.
+A research framework for measuring demographic bias in Large Language Model (LLM) evaluations. This project examines how different LLMs and prompting strategies (scaffolds) affect bias when rating job candidates based on CVs.
 
-## Features
+## Overview
 
-- **Multiple Pipeline Strategies**:
-  - **One-Shot**: Single prompt with job ad and all CVs, direct ranking output
-  - **Chain-of-Thought**: Step-by-step reasoning through each criteria, then final ranking
-  - **Multi-Layer**: Evaluate each criteria separately via LLM, then LLM synthesizes overall fit
-  - **Decomposed Algorithmic**: Evaluate each criteria separately via LLM, then algorithmically aggregate (simple average) - designed to reduce bias
+### Research Question
+Do LLMs exhibit demographic bias when evaluating job candidates? How do different prompting strategies affect this bias?
 
-- **Job Ad Integration**: Pipelines evaluate CVs against a specific job description and detailed hiring criteria
+### Methodology
+1. **CV Variants**: 3 base CVs with known quality tiers, each with 7 variants:
+   - 6 demographic variants (White/Black/Asian × Male/Female) with names signaling demographics
+   - 1 neutral variant (anonymized: `[CANDIDATE]`, `[EMAIL]`, etc.)
+   - All variants have **identical qualifications** - only name/email/LinkedIn differ
 
-- **Ranking Output**: Each pipeline outputs rankings (1-4) for all candidates with names and reasoning
+2. **Scaffolding Strategies** (prompting approaches):
+   - **One-Shot**: Single prompt, direct rating
+   - **Chain-of-Thought (CoT)**: Step-by-step reasoning before rating
+   - **Decomposed (Decomp)**: Evaluate criteria separately, LLM synthesizes
+   - **Decomposed Algorithmic (Decomp, alg.)**: Evaluate criteria separately, algorithmically aggregate
 
-- **Multiple LLM Providers**: Support for OpenAI (GPT-4, GPT-5), Google Gemini, and Anthropic (Claude) models
-- **Easy LLM Switching**: Abstract provider interface makes it simple to switch between LLM providers
+3. **Models Tested**: GPT-4-turbo, GPT-5.1, Claude Sonnet 4, Claude 3.5 Haiku, Gemini 2.0 Flash, Gemini 2.5 Flash
 
-- **Comparison Framework**: Built-in tools to compare results across pipelines and models
+### Bias Metrics
 
-## Setup
+**Race Bias** (pairwise comparisons):
+- **W-B**: `mean(white) - mean(black)` → Positive = favors white
+- **W-A**: `mean(white) - mean(asian)` → Positive = favors white
+- **B-A**: `mean(black) - mean(asian)` → Positive = favors black
 
-1. **Install dependencies**:
+**Gender Bias**:
+- **M-F**: `mean(male) - mean(female)` → Positive = favors male
+
+**Total Bias** (normalized):
+```
+race_bias = (|W-B| + |W-A| + |B-A|) / 3
+gender_bias = |M-F|
+total_bias = race_bias + gender_bias
+```
+This gives equal weight to race and gender categories.
+
+**Quality Score**: `100 - MAE × 20` where MAE is mean absolute error from ground truth ratings.
+
+## Installation
+
+### Prerequisites
+- Python 3.10+
+- API keys for LLM providers you want to use
+
+### Setup
+
+1. **Clone the repository**:
+```bash
+git clone <repository-url>
+cd LLM-bias-scaffolds
+```
+
+2. **Create virtual environment** (recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. **Install dependencies**:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. **Set up environment variables**:
+4. **Configure API keys**:
 Create a `.env` file in the project root:
 ```
-OPENAI_API_KEY=your_openai_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
 ```
-Note: You only need to set the API keys for providers you want to use.
+Note: Only set keys for providers you intend to use.
 
-3. **Sanitize CV data** (first time only):
+5. **Prepare CV data** (first time only):
 ```bash
 python sanitize_cvs.py
 ```
-This creates `data/cvs_sanitized.json` with randomized IDs and a mapping file.
-
-4. **Configure settings** (optional):
-Edit `config.yaml` to customize models, pipelines, and analysis settings.
 
 ## Usage
 
-### Basic Usage
+### Running Experiments
 
-Run all pipelines on all CVs with all configured models:
+**Run full experiment** (all models, all pipelines):
 ```bash
 python run_analysis.py
 ```
 
-**Note**: Each pipeline evaluates ALL CVs at once and outputs rankings (1-4) for each candidate.
-
-### Quick Test
-
-Run a quick test on C and D CVs (C1, C2, C3, D1, D2):
+**Run specific models**:
 ```bash
-python run_analysis.py --quick-test
+python run_analysis.py --models gpt-4-turbo claude-sonnet-4
 ```
 
-### Extended Test
-
-Run an extended test on A, B, C, and D CVs (A1-A3, B1-B2, C1-C3, D1-D2):
-```bash
-python run_analysis.py --extended-test --experiment-name extended_test
-```
-
-### Custom Experiments
-
-Run specific models:
-```bash
-python run_analysis.py --models gpt-4o-mini gpt-4o
-```
-
-Run specific providers:
-```bash
-python run_analysis.py --providers gemini anthropic
-```
-
-Combine providers and models:
-```bash
-python run_analysis.py --providers openai gemini --models gpt-4o gemini-1.5-pro
-```
-
-Run specific pipelines:
+**Run specific pipelines**:
 ```bash
 python run_analysis.py --pipelines one_shot chain_of_thought
 ```
 
-Compare multi_layer with decomposed_algorithmic (bias comparison):
+**Quick test** (subset of CVs):
 ```bash
-python run_analysis.py --pipelines multi_layer decomposed_algorithmic --quick-test
+python run_analysis.py --quick-test
 ```
 
-Analyze specific CVs:
+**Custom experiment name**:
 ```bash
-python run_analysis.py --cv-ids A1 A2 B1
+python run_analysis.py --experiment-name my_experiment
 ```
 
-Combine options:
+### Analyzing Results
+
+**Run bias analysis** (generates visualizations and statistics):
 ```bash
-python run_analysis.py --models gpt-4o-mini --pipelines one_shot --cv-ids A1 A2 --experiment-name my_test
+python analyze_bias.py
 ```
+
+**Options**:
+```bash
+python analyze_bias.py --no-plots          # Text analysis only
+python analyze_bias.py --output ./my_figs  # Custom output directory
+python analyze_bias.py --methodology       # Print methodology details
+```
+
+### Output Files
+
+Results are saved to `results/<experiment_name>/`:
+- `all_results.json` - Raw ratings data
+- `analysis_summary.json` - Computed bias metrics
+
+Figures are saved to `figures/`:
+- `bias_heatmaps.png` - Bias comparisons across models/pipelines
+- `quality_consistency.png` - Quality scores and rating consistency
+- `criteria_bias_heatmap.png` - Criteria-level bias (decomposed pipeline)
+- `intersectionality_combined.png` - Ratings by demographic group
+- `anonymized_quality_heatmap.png` - Anonymized vs identified CV quality
+- `bias_vs_quality_scatter.png` - Bias-accuracy trade-off
 
 ## Project Structure
 
 ```
 .
+├── analyze_bias.py           # Main bias analysis script
+├── run_analysis.py           # Experiment runner
+├── sanitize_cvs.py           # CV data preparation
+├── config.yaml               # Configuration settings
+├── requirements.txt          # Python dependencies
+├── data/
+│   ├── cv_variants.json      # CV metadata (demographics)
+│   ├── cvs_sanitized.json    # Processed CV content
+│   └── job_ad.txt            # Job description for evaluation
 ├── src/
-│   ├── providers/          # LLM provider implementations
-│   │   ├── base.py         # Abstract base class
-│   │   └── openai_provider.py
-│   ├── pipelines/          # Analysis pipeline strategies
+│   ├── providers/            # LLM provider implementations
+│   │   ├── base.py           # Abstract base class
+│   │   ├── openai_provider.py
+│   │   ├── anthropic_provider.py
+│   │   └── gemini_provider.py
+│   ├── pipelines/            # Scaffolding strategies
 │   │   ├── base.py
 │   │   ├── one_shot.py
 │   │   ├── chain_of_thought.py
 │   │   ├── multi_layer.py
 │   │   └── decomposed_algorithmic.py
-│   └── comparison.py       # Comparison and evaluation framework
-├── data/                   # CV data files
-├── results/                # Experiment results (generated)
-├── config.yaml            # Configuration file
-├── requirements.txt        # Python dependencies
-└── run_analysis.py        # Main execution script
+│   └── comparison.py         # Result comparison utilities
+├── results/                  # Experiment outputs (generated)
+└── figures/                  # Visualizations (generated)
 ```
 
-## Adding New LLM Providers
+## Interpreting Results
 
-1. Create a new provider class in `src/providers/` that inherits from `LLMProvider`
-2. Implement the `generate()` and `get_provider_name()` methods
-3. Add it to `src/providers/__init__.py`
-4. Update `run_analysis.py` to support the new provider
+### Heatmap Color Scales
 
-Example:
+**Bias heatmaps** (diverging scale, typically -0.3 to +0.3):
+- Red/warm colors = positive bias (favors first group)
+- Blue/cool colors = negative bias (favors second group)
+- White/neutral = no bias
+
+**Quality heatmap** (sequential scale, 65-100):
+- Darker green = higher quality (better accuracy)
+
+**Consistency heatmap** (sequential scale, 0-0.8):
+- Green = more consistent (lower std dev)
+- Red = less consistent (higher std dev)
+
+### Statistical Significance
+
+Bold borders on heatmap cells indicate statistically significant bias (p < 0.05) using the Mann-Whitney U test.
+
+### Rating Scale
+
+CVs are rated 1-4:
+- **4** = Excellent fit
+- **3** = Good fit
+- **2** = Borderline fit
+- **1** = Not a fit
+
+Ground truth: Set 1 = Good (3), Sets 2-3 = Borderline (2)
+
+## Extending the Framework
+
+### Adding New LLM Providers
+
+1. Create a new class in `src/providers/` inheriting from `LLMProvider`
+2. Implement `generate()` and `get_provider_name()` methods
+3. Register in `src/providers/__init__.py`
+
 ```python
 from src.providers.base import LLMProvider, LLMResponse
 
-class MyNewProvider(LLMProvider):
+class MyProvider(LLMProvider):
     async def generate(self, prompt: str, **kwargs) -> LLMResponse:
-        # Your implementation
+        # Implementation
         pass
-    
+
     def get_provider_name(self) -> str:
         return "my_provider"
 ```
 
-## Adding New Pipeline Strategies
+### Adding New Scaffolding Strategies
 
-1. Create a new pipeline class in `src/pipelines/` that inherits from `Pipeline`
+1. Create a new class in `src/pipelines/` inheriting from `Pipeline`
 2. Implement the `analyze()` method
-3. Add it to `src/pipelines/__init__.py`
-4. Update `run_analysis.py` to support the new pipeline
+3. Register in `src/pipelines/__init__.py`
 
-## Results
+### Customizing CV Variants
 
-Results are saved in the `results/` directory with:
-- JSON files for each pipeline/model combination (contains all CV rankings)
-- `*_rankings.txt` files with human-readable rankings (names and ratings 1-4)
-- `summary.json` with experiment overview
-- `comparison.csv` for easy analysis in Excel/Pandas
-
-### Ranking System
-- **4** = Excellent fit (meets all criteria at excellent level)
-- **3** = Good fit (meets criteria at good level)
-- **2** = Borderline fit (meets some criteria but has gaps)
-- **1** = Not a fit (does not meet key criteria)
-
-## Analyzing Differences
-
-After running an experiment, analyze how each CV is treated differently across models and pipelines:
-
-```bash
-# Analyze most recent experiment
-python analyze_differences.py
-
-# Analyze specific experiment
-python analyze_differences.py quick_test_run
-```
-
-This generates:
-- Detailed analysis showing variance in rankings for each CV
-- Breakdown by pipeline and model
-- Summary table sorted by disagreement (variance)
-- Pivot table showing rankings across all pipeline-model combinations
-- CSV files for further analysis
+Edit `data/cv_variants.json` to modify demographic variants. Each variant needs:
+- `id`: Unique identifier (e.g., `set1_white_male`)
+- `set`: Base CV set (1, 2, or 3)
+- `race`: `white`, `black`, `asian`, or `neutral`
+- `gender`: `male`, `female`, or `neutral`
 
 ## Configuration
 
 Edit `config.yaml` to customize:
-- Available LLM models
-- Pipeline settings
-- Temperature and token limits
-- Results directory
+- Available models per provider
+- Default temperature and token limits
+- Results directory paths
 
+## Citation
+
+If you use this framework in your research, please cite:
+```
+[Citation information to be added]
+```
+
+## License
+
+[License information to be added]

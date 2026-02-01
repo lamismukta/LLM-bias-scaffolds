@@ -523,13 +523,13 @@ def print_full_analysis(all_results: Dict[str, List[dict]], cv_meta: Dict[str, d
                   f"{bias.asian_dev:>+8.2f} {bias.male_dev:>+8.2f} {bias.female_dev:>+8.2f}")
 
 
-def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
-                          cv_meta: Dict[str, dict],
-                          output_dir: Path,
-                          significance_results: Dict = None):
-    """Generate summary heatmaps for bias across all models and pipelines.
+def plot_bias_heatmaps(all_results: Dict[str, List[dict]],
+                       cv_meta: Dict[str, dict],
+                       output_dir: Path,
+                       significance_results: Dict = None):
+    """Generate bias heatmaps for all models and pipelines.
 
-    Uses 3x2 layout. Adds bold borders around cells with statistically significant bias.
+    Uses 2x3 grid with 5 bias charts. Adds bold borders around cells with statistically significant bias.
     """
 
     if not HAS_MATPLOTLIB:
@@ -548,7 +548,6 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
     b_a_matrix = np.zeros((n_models, n_pipelines))
     m_f_matrix = np.zeros((n_models, n_pipelines))
     total_matrix = np.zeros((n_models, n_pipelines))
-    quality_matrix = np.zeros((n_models, n_pipelines))
 
     for i, model in enumerate(models):
         data = all_results[model]
@@ -559,7 +558,6 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
             b_a_matrix[i, j] = bias.b_a
             m_f_matrix[i, j] = bias.m_f
             total_matrix[i, j] = bias.total_bias
-            quality_matrix[i, j] = quality
 
     # Build significance lookup: {(model, pipeline, comparison): is_significant}
     sig_lookup = {}
@@ -586,11 +584,11 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
             normalized = (value - vmin) / (vmax - vmin) if vmax > vmin else 0
             return 'white' if normalized > 0.6 else '#1f2937'
 
-    # Create heatmaps (2x3 grid for 6 plots) - 2 rows, 3 columns
+    # Create heatmaps (2x3 grid for 5 bias plots + 1 empty)
     fig, axes = plt.subplots(2, 3, figsize=(20, 12))
 
     # Modern title with subtitle - larger fonts for article
-    fig.suptitle('Bias Analysis Summary', fontsize=24, fontweight='bold', y=0.98)
+    fig.suptitle('Bias Heatmaps', fontsize=24, fontweight='bold', y=0.98)
     subtitle = 'Bold border = statistically significant (p < 0.05)' if significance_results else ''
     fig.text(0.5, 0.94, subtitle, ha='center', fontsize=14, color='#1f2937', fontweight='medium')
 
@@ -598,7 +596,6 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
     pipeline_labels = ['One-Shot', 'CoT', 'Decomp', 'Decomp, alg.']
 
     # Softer diverging colormaps - less harsh at extremes
-    # Using 'coolwarm' which is softer than RdBu_r
     div_cmap = 'coolwarm'
 
     def style_heatmap(ax, matrix, title, subtitle, cmap, vmin, vmax, comparison=None):
@@ -641,7 +638,7 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
                   'Red = favors Black, Blue = favors Asian',
                   div_cmap, -0.3, 0.3, 'B-A')
 
-    # Row 2: Gender bias and summary metrics
+    # Row 2: Gender bias and total bias
     style_heatmap(axes[1, 0], m_f_matrix,
                   'Male − Female',
                   'Green = favors Male, Purple = favors Female',
@@ -650,26 +647,16 @@ def plot_summary_heatmaps(all_results: Dict[str, List[dict]],
                   'Total Bias',
                   'Darker = more biased (lower is better)',
                   'YlOrBr', 0, 0.5, None)
-    style_heatmap(axes[1, 2], quality_matrix,
-                  'Quality Score',
-                  'Darker = higher quality (higher is better)',
-                  'YlGn', 65, 100, None)
 
-    # Reformat quality values to integers
-    for txt in axes[1, 2].texts:
-        txt.remove()
-    for i in range(n_models):
-        for j in range(n_pipelines):
-            color = get_text_color(quality_matrix[i,j], 65, 100, 'sequential')
-            axes[1, 2].text(j, i, f'{quality_matrix[i,j]:.0f}', ha='center', va='center',
-                           fontsize=11, color=color, fontweight='medium')
+    # Hide the empty subplot
+    axes[1, 2].axis('off')
 
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.savefig(output_dir / 'summary_heatmaps.png', dpi=150, bbox_inches='tight',
+    plt.tight_layout(rect=[0, 0, 1, 0.92])
+    plt.savefig(output_dir / 'bias_heatmaps.png', dpi=150, bbox_inches='tight',
                 facecolor='white', edgecolor='none')
     plt.close()
 
-    print(f"Saved summary heatmaps to {output_dir}")
+    print(f"Saved bias heatmaps to {output_dir}")
 
 
 def plot_bias_vs_quality(all_results: Dict[str, List[dict]],
@@ -1474,15 +1461,14 @@ This analysis examines which criteria exhibit the most demographic bias.
 # NEW SIMPLIFIED PLOT FUNCTIONS
 # =============================================================================
 
-def plot_consistency(all_results: Dict[str, List[dict]],
-                     cv_meta: Dict[str, dict],
-                     output_dir: Path):
+def plot_quality_consistency(all_results: Dict[str, List[dict]],
+                              cv_meta: Dict[str, dict],
+                              output_dir: Path):
     """
-    Plot consistency as standard deviation within CV sets with modern styling.
+    Plot Quality Score and Consistency side by side.
 
-    For each model+pipeline, calculates how consistently the model rates
-    variants of the same base CV (i.e., do all demographic variants of CV1
-    get similar ratings?).
+    Quality Score: 100 - MAE*20 (higher = better accuracy)
+    Consistency: Standard deviation within CV sets (lower = more consistent)
     """
     if not HAS_MATPLOTLIB:
         return
@@ -1494,16 +1480,21 @@ def plot_consistency(all_results: Dict[str, List[dict]],
     n_models = len(models)
     n_pipelines = len(PIPELINES)
 
-    # Build consistency matrix (std dev within CV sets)
-    consistency_matrix = np.zeros((n_models, n_pipelines))
-
+    # Build quality matrix
+    quality_matrix = np.zeros((n_models, n_pipelines))
     for i, model in enumerate(models):
         data = all_results[model]
         for j, pipeline in enumerate(PIPELINES):
-            # Get all ratings for this pipeline
+            bias, mae, quality = analyze_model_pipeline(data, cv_meta, pipeline)
+            quality_matrix[i, j] = quality
+
+    # Build consistency matrix (std dev within CV sets)
+    consistency_matrix = np.zeros((n_models, n_pipelines))
+    for i, model in enumerate(models):
+        data = all_results[model]
+        for j, pipeline in enumerate(PIPELINES):
             pipeline_results = [r for r in data if r['pipeline'] == pipeline]
 
-            # For each CV set, calculate std dev across variants
             set_stds = []
             for cv_set in ['1', '2', '3']:
                 set_ratings = []
@@ -1516,42 +1507,64 @@ def plot_consistency(all_results: Dict[str, List[dict]],
                 if len(set_ratings) > 1:
                     set_stds.append(np.std(set_ratings))
 
-            # Average std dev across CV sets
             consistency_matrix[i, j] = np.mean(set_stds) if set_stds else 0
 
-    # Create heatmap with modern styling
-    fig, ax = plt.subplots(figsize=(10, 7))
+    # Create side-by-side heatmaps
+    fig, axes = plt.subplots(1, 2, figsize=(16, 8))
 
-    # Modern colormap - inverted so green = good (consistent)
-    im = ax.imshow(consistency_matrix, cmap='RdYlGn_r', aspect='auto', vmin=0, vmax=0.8)
+    fig.suptitle('Quality & Consistency', fontsize=22, fontweight='bold', y=0.98)
 
-    ax.set_title('Rating Consistency', fontsize=18, fontweight='bold', pad=15)
-    fig.text(0.5, 0.92, 'Standard deviation within CV sets (lower = more consistent)',
-             ha='center', fontsize=13, color='#6b7280', style='italic')
+    pipeline_labels = ['One-Shot', 'CoT', 'Decomp', 'Decomp, alg.']
 
-    ax.set_yticks(range(n_models))
-    ax.set_yticklabels(models, fontsize=13)
-    ax.set_xticks(range(n_pipelines))
-    ax.set_xticklabels(['One-Shot', 'CoT', 'Decomp', 'Decomp, alg.'], fontsize=12)
+    def get_text_color(value, vmin, vmax, invert=False):
+        """Return white for dark backgrounds, dark gray for light."""
+        normalized = (value - vmin) / (vmax - vmin) if vmax > vmin else 0
+        if invert:
+            return 'white' if normalized < 0.4 else '#1f2937'
+        return 'white' if normalized > 0.6 else '#1f2937'
 
-    cbar = plt.colorbar(im, ax=ax, shrink=0.8, aspect=25)
-    cbar.set_label('Std Dev', fontsize=13)
-    cbar.ax.tick_params(labelsize=12)
+    # Quality Score heatmap
+    im1 = axes[0].imshow(quality_matrix, cmap='YlGn', aspect='auto', vmin=65, vmax=100)
+    axes[0].set_title('Quality Score\nDarker = higher quality (higher is better)',
+                      fontsize=14, fontweight='semibold', pad=10, linespacing=1.4)
+    axes[0].set_yticks(range(n_models))
+    axes[0].set_yticklabels(models, fontsize=13)
+    axes[0].set_xticks(range(n_pipelines))
+    axes[0].set_xticklabels(pipeline_labels, fontsize=12)
+    cbar1 = plt.colorbar(im1, ax=axes[0], shrink=0.8, aspect=20)
+    cbar1.ax.tick_params(labelsize=11)
 
-    # Add values with appropriate text color
+    for i in range(n_models):
+        for j in range(n_pipelines):
+            val = quality_matrix[i, j]
+            color = get_text_color(val, 65, 100)
+            axes[0].text(j, i, f'{val:.0f}', ha='center', va='center',
+                        fontsize=13, color=color, fontweight='medium')
+
+    # Consistency heatmap
+    im2 = axes[1].imshow(consistency_matrix, cmap='RdYlGn_r', aspect='auto', vmin=0, vmax=0.8)
+    axes[1].set_title('Consistency\nStd dev within CV sets (lower = more consistent)',
+                      fontsize=14, fontweight='semibold', pad=10, linespacing=1.4)
+    axes[1].set_yticks(range(n_models))
+    axes[1].set_yticklabels(models, fontsize=13)
+    axes[1].set_xticks(range(n_pipelines))
+    axes[1].set_xticklabels(pipeline_labels, fontsize=12)
+    cbar2 = plt.colorbar(im2, ax=axes[1], shrink=0.8, aspect=20)
+    cbar2.ax.tick_params(labelsize=11)
+
     for i in range(n_models):
         for j in range(n_pipelines):
             val = consistency_matrix[i, j]
             color = 'white' if val > 0.45 else '#1f2937'
-            ax.text(j, i, f'{val:.2f}', ha='center', va='center',
-                   fontsize=13, color=color, fontweight='medium')
+            axes[1].text(j, i, f'{val:.2f}', ha='center', va='center',
+                        fontsize=13, color=color, fontweight='medium')
 
-    plt.tight_layout(rect=[0, 0, 1, 0.9])
-    plt.savefig(output_dir / 'consistency.png', dpi=150, bbox_inches='tight',
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.savefig(output_dir / 'quality_consistency.png', dpi=150, bbox_inches='tight',
                 facecolor='white', edgecolor='none')
     plt.close()
 
-    print(f"Saved consistency plot to {output_dir}")
+    print(f"Saved quality & consistency plot to {output_dir}")
 
 
 def plot_intersectionality_combined(all_results: Dict[str, List[dict]],
@@ -1580,7 +1593,7 @@ def plot_intersectionality_combined(all_results: Dict[str, List[dict]],
 
     demo_groups = ['white_male', 'white_female', 'black_male', 'black_female',
                    'asian_male', 'asian_female', 'neutral']
-    demo_labels = ['W♂', 'W♀', 'B♂', 'B♀', 'A♂', 'A♀', 'N']
+    demo_labels = ['WM', 'WF', 'BM', 'BF', 'AM', 'AF', 'N']
 
     # Modern colormap
     cmap = 'RdYlBu_r'
@@ -1637,8 +1650,8 @@ def plot_intersectionality_combined(all_results: Dict[str, List[dict]],
     cbar.ax.tick_params(labelsize=11)
 
     # Add legend for demographic codes at very bottom
-    legend_text = 'W=White  B=Black  A=Asian  N=Neutral  ♂=Male  ♀=Female'
-    fig.text(0.5, 0.005, legend_text, ha='center', fontsize=11, color='#6b7280')
+    legend_text = 'W=White  B=Black  A=Asian  M=Male  F=Female  N=Neutral'
+    fig.text(0.5, 0.005, legend_text, ha='center', fontsize=12, color='#6b7280')
 
     plt.savefig(output_dir / 'intersectionality_combined.png', dpi=150, bbox_inches='tight',
                 facecolor='white', edgecolor='none')
@@ -1647,12 +1660,58 @@ def plot_intersectionality_combined(all_results: Dict[str, List[dict]],
     print(f"Saved combined intersectionality plot to {output_dir}")
 
 
+def test_criteria_significance(criteria_by_model: Dict) -> Dict:
+    """
+    Test statistical significance for criteria-level bias.
+
+    Returns:
+        {model: {criteria: {comparison: is_significant}}}
+    """
+    if not HAS_SCIPY:
+        return {}
+
+    sig_results = {}
+
+    for model, criteria_data in criteria_by_model.items():
+        sig_results[model] = {}
+
+        for criteria, demo_data in criteria_data.items():
+            sig_results[model][criteria] = {}
+
+            white = demo_data.get('white', [])
+            black = demo_data.get('black', [])
+            asian = demo_data.get('asian', [])
+            male = demo_data.get('male', [])
+            female = demo_data.get('female', [])
+
+            # Test each comparison
+            comparisons = [
+                ('w_b', white, black),
+                ('w_a', white, asian),
+                ('b_a', black, asian),
+                ('m_f', male, female),
+            ]
+
+            for comp_name, group1, group2 in comparisons:
+                if len(group1) >= 3 and len(group2) >= 3:
+                    try:
+                        _, p_val = stats.mannwhitneyu(group1, group2, alternative='two-sided')
+                        sig_results[model][criteria][comp_name] = p_val < 0.05
+                    except Exception:
+                        sig_results[model][criteria][comp_name] = False
+                else:
+                    sig_results[model][criteria][comp_name] = False
+
+    return sig_results
+
+
 def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
                                 cv_meta: Dict[str, dict],
                                 output_dir: Path):
     """
     Create criteria bias heatmap by model with modern styling.
     White fonts on dark backgrounds for readability.
+    Bold borders on statistically significant cells.
     """
     if not HAS_MATPLOTLIB:
         return
@@ -1665,6 +1724,9 @@ def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
     n_models = len(models)
     n_criteria = len(CRITERIA_NAMES)
 
+    # Calculate significance for all comparisons
+    sig_results = test_criteria_significance(criteria_by_model)
+
     # Softer color schemes with subtitles explaining scale
     bias_types = [
         ('w_b', 'White − Black', 'Red = favors White, Blue = favors Black', 'coolwarm'),
@@ -1675,13 +1737,24 @@ def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
 
     fig, axes = plt.subplots(2, 2, figsize=(16, 12))
     fig.suptitle('Criteria-Level Bias Analysis', fontsize=20, fontweight='bold', y=0.98)
-    fig.text(0.5, 0.94, 'Decomposed Algorithmic Pipeline',
+    subtitle = 'Decomposed Algorithmic Pipeline • Bold border = statistically significant (p < 0.05)'
+    fig.text(0.5, 0.94, subtitle,
              ha='center', fontsize=14, color='#6b7280', style='italic')
 
     # Shorter criteria labels
     criteria_labels = ['Zero-to-One', 'Tech T-Shape', 'Recruitment']
 
-    for ax_idx, (bias_key, bias_label, subtitle, cmap) in enumerate(bias_types):
+    def add_significance_border(ax, i, j, model, criteria, comparison):
+        """Add bold border if result is significant."""
+        try:
+            if sig_results.get(model, {}).get(criteria, {}).get(comparison, False):
+                rect = plt.Rectangle((j-0.5, i-0.5), 1, 1, fill=False,
+                                      edgecolor='#1f2937', linewidth=3.5)
+                ax.add_patch(rect)
+        except Exception:
+            pass
+
+    for ax_idx, (bias_key, bias_label, subtitle_text, cmap) in enumerate(bias_types):
         ax = axes[ax_idx // 2, ax_idx % 2]
 
         matrix = np.zeros((n_models, n_criteria))
@@ -1694,7 +1767,7 @@ def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
         im = ax.imshow(matrix, cmap=cmap, aspect='auto', vmin=-0.35, vmax=0.35)
 
         # Title with subtitle explaining scale
-        ax.set_title(f'{bias_label}\n{subtitle}', fontsize=14, fontweight='semibold', pad=10,
+        ax.set_title(f'{bias_label}\n{subtitle_text}', fontsize=14, fontweight='semibold', pad=10,
                     linespacing=1.4)
         ax.set_yticks(range(n_models))
         ax.set_yticklabels(models, fontsize=12)
@@ -1704,7 +1777,7 @@ def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
         cbar = plt.colorbar(im, ax=ax, shrink=0.8, aspect=20)
         cbar.ax.tick_params(labelsize=11)
 
-        # Add values with white text on dark backgrounds
+        # Add values, significance borders, with white text on dark backgrounds
         for i in range(n_models):
             for j in range(n_criteria):
                 val = matrix[i, j]
@@ -1713,6 +1786,8 @@ def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
                 fontweight = 'bold' if abs(val) > 0.15 else 'medium'
                 ax.text(j, i, f'{val:+.2f}', ha='center', va='center', fontsize=12,
                        color=color, fontweight=fontweight)
+                # Add border if significant
+                add_significance_border(ax, i, j, models[i], CRITERIA_NAMES[j], bias_key)
 
     plt.tight_layout(rect=[0, 0, 1, 0.92])
     plt.savefig(output_dir / 'criteria_bias_heatmap.png', dpi=150, bbox_inches='tight',
@@ -1877,14 +1952,14 @@ def main():
     if not args.no_plots and HAS_MATPLOTLIB:
         print("\nGenerating visualizations...")
 
-        # Summary heatmaps with significance borders
-        plot_summary_heatmaps(all_results, cv_meta, args.output, significance_results)
+        # Bias heatmaps with significance borders
+        plot_bias_heatmaps(all_results, cv_meta, args.output, significance_results)
+
+        # Quality and consistency combined
+        plot_quality_consistency(all_results, cv_meta, args.output)
 
         # Bias vs quality scatter
         plot_bias_vs_quality(all_results, cv_meta, args.output)
-
-        # Simple consistency plot (std dev within CV sets)
-        plot_consistency(all_results, cv_meta, args.output)
 
         # Combined intersectionality (all models in one figure)
         plot_intersectionality_combined(all_results, cv_meta, args.output)
