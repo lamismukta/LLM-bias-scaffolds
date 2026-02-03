@@ -10,7 +10,7 @@ Do LLMs exhibit demographic bias when evaluating job candidates? How do differen
 ### Methodology
 1. **CV Variants**: 3 base CVs with known quality tiers, each with 7 variants:
    - 6 demographic variants (White/Black/Asian × Male/Female) with names signaling demographics
-   - 1 neutral variant (anonymized: `[CANDIDATE]`, `[EMAIL]`, etc.)
+   - 1 neutral variant (anonymised: `[CANDIDATE]`, `[EMAIL]`, etc.)
    - All variants have **identical qualifications** - only name/email/LinkedIn differ
 
 2. **Scaffolding Strategies**:
@@ -24,14 +24,14 @@ Do LLMs exhibit demographic bias when evaluating job candidates? How do differen
 ### Bias Metrics
 
 **Race Bias** (pairwise comparisons):
-- **W-B**: `mean(white) - mean(black)` → Positive = favors white
-- **W-A**: `mean(white) - mean(asian)` → Positive = favors white
-- **B-A**: `mean(black) - mean(asian)` → Positive = favors black
+- **W-B**: `mean(white) - mean(black)` → Positive = favours white
+- **W-A**: `mean(white) - mean(asian)` → Positive = favours white
+- **B-A**: `mean(black) - mean(asian)` → Positive = favours black
 
 **Gender Bias**:
-- **M-F**: `mean(male) - mean(female)` → Positive = favors male
+- **M-F**: `mean(male) - mean(female)` → Positive = favours male
 
-**Total Bias** (normalized):
+**Total Bias** (normalised):
 ```
 race_bias = (|W-B| + |W-A| + |B-A|) / 3
 gender_bias = |M-F|
@@ -92,9 +92,9 @@ python scripts/run_triplet_experiment.py --provider openai --model gpt-4-turbo
 --output      # Output directory
 ```
 
-### Analyzing Results
+### Analysing Results
 
-**Run bias analysis** (generates visualizations and statistics):
+**Run bias analysis** (generates visualisations and statistics):
 ```bash
 python analyze_bias.py
 ```
@@ -114,7 +114,7 @@ Results are saved to `results/<model_name>/`:
 
 Figures are saved to `figures/`:
 - `bias_heatmaps.png` - Bias comparisons across models/pipelines
-- `quality_consistency.png` - Quality scores and rating consistency
+- `quality_consistency_per_cv.png` - Quality scores and rating consistency
 - `criteria_bias_heatmap.png` - Criteria-level bias (decomposed pipeline)
 - `intersectionality_combined.png` - Ratings by demographic group
 - `anonymized_quality_heatmap.png` - Anonymized vs identified CV quality
@@ -158,8 +158,8 @@ Figures are saved to `figures/`:
 ### Heatmap Color Scales
 
 **Bias heatmaps** (diverging scale, typically -0.3 to +0.3):
-- Red/warm colors = positive bias (favors first group)
-- Blue/cool colors = negative bias (favors second group)
+- Red/warm colours = positive bias (favours first group)
+- Blue/cool colours = negative bias (favours second group)
 - White/neutral = no bias
 
 **Quality heatmap** (sequential scale, 65-100):
@@ -219,7 +219,7 @@ Edit `data/cv_variants.json` to modify demographic variants. Each variant needs:
 
 ## Configuration
 
-Edit `config.yaml` to customize:
+Edit `config.yaml` to customise:
 - Available models per provider
 - Default temperature and token limits
 - Results directory paths

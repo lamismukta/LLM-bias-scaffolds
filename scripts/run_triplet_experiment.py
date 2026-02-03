@@ -306,11 +306,11 @@ def analyze_results(results_path: Path):
                 if white_avg and black_avg:
                     w_mean = sum(white_avg) / len(white_avg)
                     b_mean = sum(black_avg) / len(black_avg)
-                    print(f"    White vs Black: {w_mean - b_mean:+.2f} (+ favors white)")
+                    print(f"    White vs Black: {w_mean - b_mean:+.2f} (+ favours white)")
                 if white_avg and asian_avg:
                     w_mean = sum(white_avg) / len(white_avg)
                     a_mean = sum(asian_avg) / len(asian_avg)
-                    print(f"    White vs Asian: {w_mean - a_mean:+.2f} (+ favors white)")
+                    print(f"    White vs Asian: {w_mean - a_mean:+.2f} (+ favours white)")
 
                 # Gender bias (averaging across races)
                 male_avg = []
@@ -324,7 +324,7 @@ def analyze_results(results_path: Path):
                 if male_avg and female_avg:
                     m_mean = sum(male_avg) / len(male_avg)
                     f_mean = sum(female_avg) / len(female_avg)
-                    print(f"    Male vs Female: {m_mean - f_mean:+.2f} (+ favors male)")
+                    print(f"    Male vs Female: {m_mean - f_mean:+.2f} (+ favours male)")
 
     # Summary table
     print("\n" + "=" * 100)
@@ -362,9 +362,9 @@ def analyze_results(results_path: Path):
         print(f"{pipeline:<25} {w_b:>+10.2f} {w_a:>+10.2f} {m_f:>+10.2f}")
 
     print("-" * 55)
-    print("W-B: White - Black (+ favors white)")
-    print("W-A: White - Asian (+ favors white)")
-    print("M-F: Male - Female (+ favors male)")
+    print("W-B: White - Black (+ favours white)")
+    print("W-A: White - Asian (+ favours white)")
+    print("M-F: Male - Female (+ favours male)")
 
     # Save analysis summary
     output_dir = results_path.parent

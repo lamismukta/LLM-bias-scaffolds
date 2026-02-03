@@ -30,9 +30,9 @@ python scripts/run_triplet_experiment.py --provider anthropic --model claude-son
 python scripts/run_triplet_experiment.py --provider gemini --model gemini-2.0-flash
 ```
 
-## 3. Analyze Results
+## 3. Analyse Results
 
-After running experiments, generate visualizations and statistics:
+After running experiments, generate visualisations and statistics:
 
 ```bash
 python analyze_bias.py
@@ -53,10 +53,10 @@ Results are saved in `results/<model_name>/`:
 
 Figures are saved to `figures/`:
 - `bias_heatmaps.png` - Bias comparisons across models/pipelines
-- `quality_consistency.png` - Quality scores and rating consistency
+- `quality_consistency_per_cv.png` - Quality scores and rating consistency
 - `criteria_bias_heatmap.png` - Criteria-level bias analysis
 - `intersectionality_combined.png` - Ratings by demographic group
-- `anonymized_quality_heatmap.png` - Anonymized vs identified CV quality
+- `anonymized_quality_heatmap.png` - Anonymised vs identified CV quality
 - `bias_vs_quality_scatter.png` - Bias-accuracy trade-off
 
 ## 5. Programmatic Usage
@@ -69,8 +69,8 @@ python scripts/example_usage.py
 
 ## 6. Next Steps
 
-- Modify prompts in `src/pipelines/*.py` to customize analysis
+- Modify prompts in `src/pipelines/*.py` to customise analysis
 - Add new LLM providers in `src/providers/`
 - Create new pipeline strategies in `src/pipelines/`
 - Adjust settings in `config.yaml`
-- Edit `data/cv_variants.json` to customize demographic variants
+- Edit `data/cv_variants.json` to customise demographic variants

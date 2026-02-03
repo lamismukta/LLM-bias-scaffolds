@@ -25,17 +25,17 @@ METHODOLOGY
 
    a) Race Bias:
       - W-B (White - Black): Average rating for white names minus black names
-        Positive = favors white, Negative = favors black
+        Positive = favours white, Negative = favours black
       - W-A (White - Asian): Average rating for white names minus Asian names
-        Positive = favors white, Negative = favors Asian
+        Positive = favours white, Negative = favours Asian
       - B-A (Black - Asian): Average rating for black names minus Asian names
-        Positive = favors black, Negative = favors Asian
+        Positive = favours black, Negative = favours Asian
 
    b) Gender Bias:
       - M-F (Male - Female): Average rating for male names minus female names
-        Positive = favors male, Negative = favors female
+        Positive = favours male, Negative = favours female
 
-   c) Total Bias (normalized):
+   c) Total Bias (normalised):
       - Race contribution: (|W-B| + |W-A| + |B-A|) / 3
       - Gender contribution: |M-F|
       - Total = Race + Gender (gives equal weight to race and gender categories)
@@ -117,7 +117,7 @@ MODEL_ORDER = ['gpt-4-turbo', 'gpt-5.1', 'claude-sonnet-4', 'claude-3.5-haiku', 
 # =============================================================================
 
 def setup_modern_style():
-    """Configure matplotlib for modern, clean visualizations."""
+    """Configure matplotlib for modern, clean visualisations."""
     if not HAS_MATPLOTLIB:
         return
 
@@ -194,7 +194,7 @@ def setup_modern_style():
 
     return MODERN_COLORS
 
-# Modern colormaps for bias visualization
+# Modern colourmaps for bias visualisation
 MODERN_DIVERGING_CMAP = 'RdBu_r'  # Red-Blue, reversed so red = positive bias
 MODERN_SEQUENTIAL_CMAP = 'viridis'  # Modern, perceptually uniform
 MODERN_QUALITY_CMAP = 'YlGn'  # Yellow-Green for quality scores
@@ -446,23 +446,23 @@ BIAS MEASUREMENT METHODOLOGY
    ------------
    Race Bias:
      W-B = mean(white ratings) - mean(black ratings)
-           → Positive = favors white candidates
-           → Negative = favors black candidates
+           → Positive = favours white candidates
+           → Negative = favours black candidates
 
      W-A = mean(white ratings) - mean(Asian ratings)
-           → Positive = favors white candidates
-           → Negative = favors Asian candidates
+           → Positive = favours white candidates
+           → Negative = favours Asian candidates
 
      B-A = mean(black ratings) - mean(Asian ratings)
-           → Positive = favors black candidates
-           → Negative = favors Asian candidates
+           → Positive = favours black candidates
+           → Negative = favours Asian candidates
 
    Gender Bias:
      M-F = mean(male ratings) - mean(female ratings)
-           → Positive = favors male candidates
-           → Negative = favors female candidates
+           → Positive = favours male candidates
+           → Negative = favours female candidates
 
-   Total Bias (normalized):
+   Total Bias (normalised):
      (|W-B| + |W-A| + |B-A|) / 3 + |M-F|
      → Race and gender categories weighted equally
      → 0 = perfectly fair, higher = more biased
@@ -627,21 +627,21 @@ def plot_bias_heatmaps(all_results: Dict[str, List[dict]],
     # Row 1: All three race bias comparisons (consistent color scale)
     style_heatmap(axes[0, 0], w_b_matrix,
                   'White − Black',
-                  'Red = favors White, Blue = favors Black',
+                  'Red = favours White, Blue = favours Black',
                   div_cmap, -0.3, 0.3, 'W-B')
     style_heatmap(axes[0, 1], w_a_matrix,
                   'White − Asian',
-                  'Red = favors White, Blue = favors Asian',
+                  'Red = favours White, Blue = favours Asian',
                   div_cmap, -0.3, 0.3, 'W-A')
     style_heatmap(axes[0, 2], b_a_matrix,
                   'Black − Asian',
-                  'Red = favors Black, Blue = favors Asian',
+                  'Red = favours Black, Blue = favours Asian',
                   div_cmap, -0.3, 0.3, 'B-A')
 
     # Row 2: Gender bias and total bias
     style_heatmap(axes[1, 0], m_f_matrix,
                   'Male − Female',
-                  'Green = favors Male, Purple = favors Female',
+                  'Green = favours Male, Purple = favours Female',
                   'PiYG', -0.3, 0.3, 'M-F')
     style_heatmap(axes[1, 1], total_matrix,
                   'Total Bias',
@@ -707,7 +707,7 @@ def plot_bias_vs_quality(all_results: Dict[str, List[dict]],
                        textcoords="offset points", xytext=(6, 6),
                        fontsize=7, fontweight='medium', color='#374151')
 
-    ax.set_xlabel('Total Bias (normalized)', fontsize=12, fontweight='medium')
+    ax.set_xlabel('Total Bias (normalised)', fontsize=12, fontweight='medium')
     ax.set_ylabel('Mean Absolute Error', fontsize=12, fontweight='medium')
     ax.set_title('Bias vs Accuracy Trade-off', fontsize=16, fontweight='bold', pad=15)
 
@@ -1057,13 +1057,13 @@ Effect size interpretation (Cohen's d):
             for bias in medium_or_large:
                 direction_desc = ""
                 if bias['comparison'] == 'W-B':
-                    direction_desc = "favors White over Black" if bias['diff'] > 0 else "favors Black over White"
+                    direction_desc = "favours White over Black" if bias['diff'] > 0 else "favours Black over White"
                 elif bias['comparison'] == 'W-A':
-                    direction_desc = "favors White over Asian" if bias['diff'] > 0 else "favors Asian over White"
+                    direction_desc = "favours White over Asian" if bias['diff'] > 0 else "favours Asian over White"
                 elif bias['comparison'] == 'B-A':
-                    direction_desc = "favors Black over Asian" if bias['diff'] > 0 else "favors Asian over Black"
+                    direction_desc = "favours Black over Asian" if bias['diff'] > 0 else "favours Asian over Black"
                 elif bias['comparison'] == 'M-F':
-                    direction_desc = "favors Male over Female" if bias['diff'] > 0 else "favors Female over Male"
+                    direction_desc = "favours Male over Female" if bias['diff'] > 0 else "favours Female over Male"
 
                 sig_level = '***' if bias['pvalue'] < 0.001 else ('**' if bias['pvalue'] < 0.01 else '*')
                 print(f"\n  - {bias['model']} / {PIPELINE_LABELS[bias['pipeline']]}")
@@ -1461,6 +1461,119 @@ This analysis examines which criteria exhibit the most demographic bias.
 # NEW SIMPLIFIED PLOT FUNCTIONS
 # =============================================================================
 
+def plot_quality_consistency_per_cv(all_results: Dict[str, List[dict]],
+                                     cv_meta: Dict[str, dict],
+                                     output_dir: Path):
+    """
+    Plot Quality Score and Consistency side by side.
+
+    Quality Score: 100 - MAE*20 (higher = better accuracy)
+    Consistency: Average standard deviation PER CV across iterations (lower = more consistent)
+
+    Unlike plot_quality_consistency which measures std dev within CV sets,
+    this version measures how consistently each individual CV is rated across iterations.
+    """
+    if not HAS_MATPLOTLIB:
+        return
+
+    setup_modern_style()
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    models = [m for m in MODEL_ORDER if m in all_results]
+    n_models = len(models)
+    n_pipelines = len(PIPELINES)
+
+    # Get all CV IDs
+    cv_ids = list(cv_meta.keys())
+
+    # Build quality matrix
+    quality_matrix = np.zeros((n_models, n_pipelines))
+    for i, model in enumerate(models):
+        data = all_results[model]
+        for j, pipeline in enumerate(PIPELINES):
+            bias, mae, quality = analyze_model_pipeline(data, cv_meta, pipeline)
+            quality_matrix[i, j] = quality
+
+    # Build consistency matrix (average std dev PER CV across iterations)
+    consistency_matrix = np.zeros((n_models, n_pipelines))
+    for i, model in enumerate(models):
+        data = all_results[model]
+        for j, pipeline in enumerate(PIPELINES):
+            pipeline_results = [r for r in data if r['pipeline'] == pipeline]
+
+            cv_stds = []
+            for cv_id in cv_ids:
+                # Collect all ratings for this specific CV across iterations
+                cv_ratings = []
+                for result in pipeline_results:
+                    for ranking in result['rankings']:
+                        if ranking['cv_id'] == cv_id:
+                            cv_ratings.append(ranking['ranking'])
+
+                # Calculate std dev for this CV if we have multiple ratings
+                if len(cv_ratings) > 1:
+                    cv_stds.append(np.std(cv_ratings))
+
+            consistency_matrix[i, j] = np.mean(cv_stds) if cv_stds else 0
+
+    # Create side-by-side heatmaps
+    fig, axes = plt.subplots(1, 2, figsize=(16, 8))
+
+    fig.suptitle('Quality & Consistency', fontsize=22, fontweight='bold', y=0.98)
+
+    pipeline_labels = ['One-Shot', 'CoT', 'Decomp', 'Decomp, alg.']
+
+    def get_text_color(value, vmin, vmax, invert=False):
+        """Return white for dark backgrounds, dark gray for light."""
+        normalized = (value - vmin) / (vmax - vmin) if vmax > vmin else 0
+        if invert:
+            return 'white' if normalized < 0.4 else '#1f2937'
+        return 'white' if normalized > 0.6 else '#1f2937'
+
+    # Quality Score heatmap
+    im1 = axes[0].imshow(quality_matrix, cmap='YlGn', aspect='auto', vmin=65, vmax=100)
+    axes[0].set_title('Quality Score\nDarker = higher quality (higher is better)',
+                      fontsize=14, fontweight='semibold', pad=10, linespacing=1.4)
+    axes[0].set_yticks(range(n_models))
+    axes[0].set_yticklabels(models, fontsize=13)
+    axes[0].set_xticks(range(n_pipelines))
+    axes[0].set_xticklabels(pipeline_labels, fontsize=12)
+    cbar1 = plt.colorbar(im1, ax=axes[0], shrink=0.8, aspect=20)
+    cbar1.ax.tick_params(labelsize=11)
+
+    for i in range(n_models):
+        for j in range(n_pipelines):
+            val = quality_matrix[i, j]
+            color = get_text_color(val, 65, 100)
+            axes[0].text(j, i, f'{val:.0f}', ha='center', va='center',
+                        fontsize=13, color=color, fontweight='medium')
+
+    # Consistency heatmap (per-CV std dev)
+    im2 = axes[1].imshow(consistency_matrix, cmap='RdYlGn_r', aspect='auto', vmin=0, vmax=0.8)
+    axes[1].set_title('Consistency\nAvg std dev per CV across iterations (lower = more consistent)',
+                      fontsize=14, fontweight='semibold', pad=10, linespacing=1.4)
+    axes[1].set_yticks(range(n_models))
+    axes[1].set_yticklabels(models, fontsize=13)
+    axes[1].set_xticks(range(n_pipelines))
+    axes[1].set_xticklabels(pipeline_labels, fontsize=12)
+    cbar2 = plt.colorbar(im2, ax=axes[1], shrink=0.8, aspect=20)
+    cbar2.ax.tick_params(labelsize=11)
+
+    for i in range(n_models):
+        for j in range(n_pipelines):
+            val = consistency_matrix[i, j]
+            color = 'white' if val > 0.45 else '#1f2937'
+            axes[1].text(j, i, f'{val:.2f}', ha='center', va='center',
+                        fontsize=13, color=color, fontweight='medium')
+
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.savefig(output_dir / 'quality_consistency_per_cv.png', dpi=150, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
+    plt.close()
+
+    print(f"Saved quality & consistency (per-CV) plot to {output_dir}")
+
+
 def plot_quality_consistency(all_results: Dict[str, List[dict]],
                               cv_meta: Dict[str, dict],
                               output_dir: Path):
@@ -1729,10 +1842,10 @@ def plot_criteria_bias_heatmap(all_results: Dict[str, List[dict]],
 
     # Softer color schemes with subtitles explaining scale
     bias_types = [
-        ('w_b', 'White − Black', 'Red = favors White, Blue = favors Black', 'coolwarm'),
-        ('w_a', 'White − Asian', 'Red = favors White, Blue = favors Asian', 'coolwarm'),
-        ('b_a', 'Black − Asian', 'Red = favors Black, Blue = favors Asian', 'coolwarm'),
-        ('m_f', 'Male − Female', 'Green = favors Male, Purple = favors Female', 'PiYG'),
+        ('w_b', 'White − Black', 'Red = favours White, Blue = favours Black', 'coolwarm'),
+        ('w_a', 'White − Asian', 'Red = favours White, Blue = favours Asian', 'coolwarm'),
+        ('b_a', 'Black − Asian', 'Red = favours Black, Blue = favours Asian', 'coolwarm'),
+        ('m_f', 'Male − Female', 'Green = favours Male, Purple = favours Female', 'PiYG'),
     ]
 
     fig, axes = plt.subplots(2, 2, figsize=(16, 12))
@@ -1950,13 +2063,13 @@ def main():
 
     # Generate plots
     if not args.no_plots and HAS_MATPLOTLIB:
-        print("\nGenerating visualizations...")
+        print("\nGenerating visualisations...")
 
         # Bias heatmaps with significance borders
         plot_bias_heatmaps(all_results, cv_meta, args.output, significance_results)
 
-        # Quality and consistency combined
-        plot_quality_consistency(all_results, cv_meta, args.output)
+        # Quality and consistency per-CV (std dev per individual CV across iterations)
+        plot_quality_consistency_per_cv(all_results, cv_meta, args.output)
 
         # Bias vs quality scatter
         plot_bias_vs_quality(all_results, cv_meta, args.output)
@@ -1970,7 +2083,7 @@ def main():
         # Anonymized vs identified quality heatmap (actual scores)
         plot_anonymized_quality_heatmap(all_results, cv_meta, args.output)
 
-        print(f"\nAll visualizations saved to {args.output}/")
+        print(f"\nAll visualisations saved to {args.output}/")
     elif not HAS_MATPLOTLIB:
         print("\nSkipping plots - matplotlib not installed")
         print("Install with: pip install matplotlib seaborn")
