@@ -1,11 +1,11 @@
 # LLM Bias Analysis Framework
 
-A research framework for measuring demographic bias in Large Language Model (LLM) evaluations. This project examines how different LLMs and prompting strategies (scaffolds) affect bias when rating job candidates based on CVs.
+A research framework for measuring demographic bias in Large Language Model (LLM) evaluations. This project examines how different LLMs and scaffolds affect bias when rating job candidates based on CVs.
 
 ## Overview
 
 ### Research Question
-Do LLMs exhibit demographic bias when evaluating job candidates? How do different prompting strategies affect this bias?
+Do LLMs exhibit demographic bias when evaluating job candidates? How do different scaffolds affect this bias?
 
 ### Methodology
 1. **CV Variants**: 3 base CVs with known quality tiers, each with 7 variants:
@@ -13,7 +13,7 @@ Do LLMs exhibit demographic bias when evaluating job candidates? How do differen
    - 1 neutral variant (anonymized: `[CANDIDATE]`, `[EMAIL]`, etc.)
    - All variants have **identical qualifications** - only name/email/LinkedIn differ
 
-2. **Scaffolding Strategies** (prompting approaches):
+2. **Scaffolding Strategies**:
    - **One-Shot**: Single prompt, direct rating
    - **Chain-of-Thought (CoT)**: Step-by-step reasoning before rating
    - **Decomposed (Decomp)**: Evaluate criteria separately, LLM synthesizes
